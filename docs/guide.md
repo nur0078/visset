@@ -62,6 +62,21 @@ property. Control it with `goTo(i)`, `play()`, `pause()` and `setSpeed(x)`, and 
 `stepchange` events. It follows the system light/dark setting (or `theme="light|dark"`) and
 honors `prefers-reduced-motion`.
 
+### Objects that point at each other
+
+When objects refer to other objects, the player adds an **Objects** pane that draws them as boxes
+and arrows. It works from the shape of the data alone, so any class works: a linked list's `next`,
+a tree's `left` and `right`, or an autograd `Value` whose `_prev` set holds its inputs
+([examples/autograd.py](../examples/autograd.py)).
+
+- A box shows the object's simple fields (numbers, strings, booleans). A non-empty `label` or
+  `name` becomes its title. Functions, `None` and empty strings are left out.
+- A field that refers to another object, directly or through a list, tuple, set or dict, becomes
+  an arrow. Arrows from a plain field are labeled with its name.
+- Variables of the current frame that refer to a box are written above it.
+- The layout is fixed for the whole walkthrough: older objects sit to the left, and nothing moves
+  between steps. Fields that changed at this step are highlighted.
+
 ## Safety
 
 Source runs in a child process with CPU-time, memory, wall-clock and step limits, an isolated

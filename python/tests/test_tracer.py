@@ -161,3 +161,13 @@ def test_tracing_twice_in_one_process_is_independent() -> None:
     a = run("x = 1\n")
     b = run("x = 1\n")
     assert a["steps"] == b["steps"]
+
+
+def test_sets_of_objects_list_them_in_the_order_first_seen() -> None:
+    # Iteration order of a set of objects depends on memory addresses; the trace must not.
+    src = "class N:\n    pass\na, b, c = N(), N(), N()\ns = {c, a, b}\n"
+    trace = run(src)
+    objects = trace["objects"]
+    ids = [dict(trace["steps"][-1]["stack"][0]["locals"])[n]["ref"] for n in "abcs"]
+    s = next(v for k, v in objects.items() if k.startswith(ids[3] + "@"))
+    assert [v["ref"] for v in s["items"]] == ids[:3]

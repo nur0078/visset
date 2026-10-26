@@ -161,6 +161,9 @@ class HeapEncoder:
                 out["more"] = len(obj) - self.max_items
         elif isinstance(obj, (set, frozenset)):
             items, more = self._items(obj, depth)
+            # A set of objects iterates in memory-address order, which changes from run to run
+            # and step to step. List objects in the order visset first saw them instead.
+            items.sort(key=lambda v: int(v["ref"][1:]) if "ref" in v else -1)
             out = {"type": tname, "shape": "set", "items": items}
             if more:
                 out["more"] = more
