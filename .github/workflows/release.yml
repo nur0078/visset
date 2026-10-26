@@ -12,17 +12,17 @@ permissions:
 jobs:
   build:
     name: Build and check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build # the player bundle goes inside the wheel
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v10.3.2
         with:
           python-version: "3.13"
       - name: Tag must match the package version
@@ -46,7 +46,7 @@ jobs:
           python -m venv /tmp/check && /tmp/check/bin/pip install -q dist/*.whl
           /tmp/check/bin/visset run ../examples/bsearch.py -o /tmp/check.html
           grep -q "visset-player" /tmp/check.html
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: python/dist/
@@ -55,14 +55,14 @@ jobs:
   publish:
     name: Publish to PyPI
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: pypi
       url: https://pypi.org/p/visset
     permissions:
       id-token: write # lets PyPI verify this job via OpenID Connect
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
