@@ -203,7 +203,11 @@ class SourceIndex:
                 end_node = last.optional_vars or last.context_expr
                 span = (self._span(first.context_expr)[0], self._span(end_node)[1])
                 self._add(
-                    node, "With", span, self._header(node), "underline",
+                    node,
+                    "With",
+                    span,
+                    self._header(node),
+                    "underline",
                     stmt_end=self._span(node)[1],
                 )
             elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
