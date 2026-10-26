@@ -1,0 +1,2323 @@
+{
+ "schema": "visset.trace/0.1",
+ "meta": {
+  "language": "python",
+  "runtime": "CPython",
+  "generator": "visset",
+  "origin": "traced",
+  "title": "fib.py",
+  "entry": null,
+  "truncated": null,
+  "error": null
+ },
+ "sources": [
+  {
+   "id": "main",
+   "path": "fib.py",
+   "text": "def fib(n):\n    if n < 2:\n        return n\n    return fib(n - 1) + fib(n - 2)\n\n\nresult = fib(4)\nprint(result)\n",
+   "tokens": [
+    [
+     1,
+     0,
+     3,
+     "keyword"
+    ],
+    [
+     1,
+     4,
+     7,
+     "definition"
+    ],
+    [
+     2,
+     4,
+     6,
+     "keyword"
+    ],
+    [
+     2,
+     11,
+     12,
+     "number"
+    ],
+    [
+     3,
+     8,
+     14,
+     "keyword"
+    ],
+    [
+     4,
+     4,
+     10,
+     "keyword"
+    ],
+    [
+     4,
+     11,
+     14,
+     "call"
+    ],
+    [
+     4,
+     19,
+     20,
+     "number"
+    ],
+    [
+     4,
+     24,
+     27,
+     "call"
+    ],
+    [
+     4,
+     32,
+     33,
+     "number"
+    ],
+    [
+     7,
+     9,
+     12,
+     "call"
+    ],
+    [
+     7,
+     13,
+     14,
+     "number"
+    ],
+    [
+     8,
+     0,
+     5,
+     "builtin"
+    ]
+   ]
+  }
+ ],
+ "objects": {
+  "o1@0": {
+   "type": "function",
+   "shape": "function",
+   "repr": "fib(n)"
+  }
+ },
+ "steps": [
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      1,
+      0
+     ],
+     "end": [
+      1,
+      10
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "Define the function `fib`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ],
+   "changes": [
+    "f1.fib"
+   ]
+  },
+  {
+   "kind": "call",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      7,
+      0
+     ],
+     "end": [
+      7,
+      15
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `fib(n=4)`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 2,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      2,
+      7
+     ],
+     "end": [
+      2,
+      12
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`n < 2` is false, so the block is skipped.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "call",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `fib(n=3)`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 2,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      2,
+      7
+     ],
+     "end": [
+      2,
+      12
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`n < 2` is false, so the block is skipped.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "call",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `fib(n=2)`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f4",
+     "name": "fib",
+     "line": 2,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      2,
+      7
+     ],
+     "end": [
+      2,
+      12
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`n < 2` is false, so the block is skipped.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f4",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "call",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `fib(n=1)`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f4",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f5",
+     "name": "fib",
+     "line": 2,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "1",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      2,
+      7
+     ],
+     "end": [
+      2,
+      12
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`n < 2` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f4",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f5",
+     "name": "fib",
+     "line": 3,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "1",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      8
+     ],
+     "end": [
+      3,
+      16
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`fib` returns `1`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f4",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f5",
+     "name": "fib",
+     "line": 3,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "1",
+        "t": "int"
+       }
+      ]
+     ],
+     "returnValue": {
+      "p": "1",
+      "t": "int"
+     }
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "call",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `fib(n=0)`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f4",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f6",
+     "name": "fib",
+     "line": 2,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "0",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      2,
+      7
+     ],
+     "end": [
+      2,
+      12
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`n < 2` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f4",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f6",
+     "name": "fib",
+     "line": 3,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "0",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      8
+     ],
+     "end": [
+      3,
+      16
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`fib` returns `0`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f4",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f6",
+     "name": "fib",
+     "line": 3,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "0",
+        "t": "int"
+       }
+      ]
+     ],
+     "returnValue": {
+      "p": "0",
+      "t": "int"
+     }
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`fib` returns `1`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f4",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ],
+     "returnValue": {
+      "p": "1",
+      "t": "int"
+     }
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "call",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `fib(n=1)`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f7",
+     "name": "fib",
+     "line": 2,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "1",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      2,
+      7
+     ],
+     "end": [
+      2,
+      12
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`n < 2` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f7",
+     "name": "fib",
+     "line": 3,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "1",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      8
+     ],
+     "end": [
+      3,
+      16
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`fib` returns `1`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f7",
+     "name": "fib",
+     "line": 3,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "1",
+        "t": "int"
+       }
+      ]
+     ],
+     "returnValue": {
+      "p": "1",
+      "t": "int"
+     }
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`fib` returns `2`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f3",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ],
+     "returnValue": {
+      "p": "2",
+      "t": "int"
+     }
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "call",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `fib(n=2)`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f8",
+     "name": "fib",
+     "line": 2,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      2,
+      7
+     ],
+     "end": [
+      2,
+      12
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`n < 2` is false, so the block is skipped.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f8",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "call",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `fib(n=1)`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f8",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f9",
+     "name": "fib",
+     "line": 2,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "1",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      2,
+      7
+     ],
+     "end": [
+      2,
+      12
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`n < 2` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f8",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f9",
+     "name": "fib",
+     "line": 3,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "1",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      8
+     ],
+     "end": [
+      3,
+      16
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`fib` returns `1`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f8",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f9",
+     "name": "fib",
+     "line": 3,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "1",
+        "t": "int"
+       }
+      ]
+     ],
+     "returnValue": {
+      "p": "1",
+      "t": "int"
+     }
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "call",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `fib(n=0)`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f8",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f10",
+     "name": "fib",
+     "line": 2,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "0",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      2,
+      7
+     ],
+     "end": [
+      2,
+      12
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`n < 2` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f8",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f10",
+     "name": "fib",
+     "line": 3,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "0",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      8
+     ],
+     "end": [
+      3,
+      16
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`fib` returns `0`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f8",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f10",
+     "name": "fib",
+     "line": 3,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "0",
+        "t": "int"
+       }
+      ]
+     ],
+     "returnValue": {
+      "p": "0",
+      "t": "int"
+     }
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`fib` returns `1`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f8",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ],
+     "returnValue": {
+      "p": "1",
+      "t": "int"
+     }
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      34
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`fib` returns `3`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 7,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "fib",
+     "line": 4,
+     "locals": [
+      [
+       "n",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ],
+     "returnValue": {
+      "p": "3",
+      "t": "int"
+     }
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      7,
+      0
+     ],
+     "end": [
+      7,
+      15
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`result` becomes `3`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 8,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "result",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      8,
+      0
+     ],
+     "end": [
+      8,
+      13
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Print `3`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 8,
+     "locals": [
+      [
+       "fib",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "result",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ],
+   "stdout": "3\n"
+  }
+ ]
+}

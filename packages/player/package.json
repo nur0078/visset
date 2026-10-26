@@ -1,0 +1,35 @@
+{
+  "name": "@visset/player",
+  "version": "0.1.0-dev",
+  "description": "<visset-player>: a step-by-step code walkthrough web component.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/visset-player.esm.js",
+  "module": "./dist/visset-player.esm.js",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./dist/visset-player.esm.js",
+    "./iife": "./dist/visset-player.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "sideEffects": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "roughjs": "^4.6.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "esbuild": "^0.28.2",
+    "playwright": "1.63.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

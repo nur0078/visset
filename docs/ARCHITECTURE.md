@@ -234,6 +234,18 @@ user's code and makes closures and scoping tricky. I'll prototype CDP first and 
 </script>
 ```
 
+## 5b. Scope: functions, snippets and line ranges
+
+visset explains a function, a snippet or part of a function, not a whole codebase. Everything
+goes through one mechanism, a **view window**: the tracer records the run as usual, then keeps
+only the steps whose focus is inside the window, renumbers positions to the excerpt, and sets
+`sources[0].firstLine` so the player shows the file's real line numbers. Output printed by
+hidden steps is carried to the next visible step. The window comes from `--fn` (the
+function's definition, decorators included), `--lines A-B`, or the source of a live function
+passed to `visset.show(fn, *args)`. A snippet with `--given` inputs runs as a tiny program;
+the tracer snapshots the state before the first step, so inputs and arguments are never
+reported as changes.
+
 ## 6. CLI and Python API
 
 ```bash
@@ -278,7 +290,8 @@ overlay YAML", so the AI never touches the renderer, and you can review or edit 
 
 ## 8. Safety
 
-Every trace runs in a **child process**: `python -I` (isolated mode), a temp working directory, a scrubbed
+Every trace runs in a **child process**: `python -I` (isolated mode), the script's own directory as working
+directory (so `open("data.txt")` behaves like `python file.py`), `PYTHONHASHSEED=0` (reproducible traces), a scrubbed
 environment, stdin closed unless given, `resource.setrlimit` for CPU seconds and address space, a wall-clock
 timeout, and the step limit inside the tracer.
 **Honest caveat:** this protects against *accidents* (infinite loops, memory blowups), not *malicious code*. The

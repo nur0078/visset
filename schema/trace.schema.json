@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/nur0078/visset/schema/trace.schema.json",
+  "title": "visset trace",
+  "description": "A recorded or hand-authored walkthrough of a program. Lines are 1-based; columns are 0-based, end-exclusive, counted in Unicode code points. Each step stores the state AFTER its focused code ran.",
+  "type": "object",
+  "required": ["schema", "meta", "sources", "objects", "steps"],
+  "properties": {
+    "schema": { "const": "visset.trace/0.1" },
+    "meta": { "$ref": "#/$defs/meta" },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/source" }
+    },
+    "objects": {
+      "description": "Versioned object pool. Keys are '<objectId>@<version>'. A new version exists only when an object's content changed.",
+      "type": "object",
+      "propertyNames": { "pattern": "^[A-Za-z0-9_.:-]+@[0-9]+$" },
+      "additionalProperties": { "$ref": "#/$defs/object" }
+    },
+    "steps": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/step" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "pos": {
+      "description": "[line, column]: 1-based line, 0-based code point column.",
+      "type": "array",
+      "prefixItems": [
+        { "type": "integer", "minimum": 1 },
+        { "type": "integer", "minimum": 0 }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "meta": {
+      "type": "object",
+      "required": ["language", "origin"],
+      "properties": {
+        "language": { "type": "string" },
+        "runtime": { "type": "string" },
+        "generator": { "type": "string" },
+        "origin": { "enum": ["traced", "authored", "mixed"] },
+        "title": { "type": "string" },
+        "entry": { "type": ["string", "null"] },
+        "truncated": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "required": ["reason"],
+              "properties": {
+                "reason": { "enum": ["maxSteps", "timeout", "maxStack", "memory"] },
+                "limit": { "type": "number" }
+              }
+            }
+          ]
+        },
+        "error": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "required": ["type", "message"],
+              "properties": {
+                "type": { "type": "string" },
+                "message": { "type": "string" },
+                "line": { "type": ["integer", "null"] }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["id", "text"],
+      "properties": {
+        "id": { "type": "string" },
+        "path": { "type": "string" },
+        "text": { "type": "string" },
+        "firstLine": {
+          "description": "Line number (in the original file) of the first line of `text`, when `text` is an excerpt such as one function. Positions in steps stay relative to `text`; this is for display.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "tokens": {
+          "description": "Syntax-highlighting tokens: [line, column, endColumn, kind]. Single-line only.",
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              { "type": "integer", "minimum": 1 },
+              { "type": "integer", "minimum": 0 },
+              { "type": "integer", "minimum": 0 },
+              { "type": "string" }
+            ],
+            "minItems": 4,
+            "maxItems": 4
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "value": {
+      "oneOf": [
+        {
+          "description": "Primitive: a display string plus a type name.",
+          "type": "object",
+          "required": ["p", "t"],
+          "properties": { "p": { "type": "string" }, "t": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "description": "Reference to an object in the pool (the version alive at this step).",
+          "type": "object",
+          "required": ["ref"],
+          "properties": { "ref": { "type": "string" } },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "object": {
+      "type": "object",
+      "required": ["type", "shape"],
+      "properties": {
+        "type": { "description": "Language-specific type name, for display.", "type": "string" },
+        "shape": { "enum": ["sequence", "mapping", "set", "record", "function", "class", "opaque"] },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/value" } },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [{ "$ref": "#/$defs/value" }, { "$ref": "#/$defs/value" }],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [{ "type": "string" }, { "$ref": "#/$defs/value" }],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "repr": { "type": "string" },
+        "more": { "description": "How many elements were left out.", "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "mark": {
+      "type": "object",
+      "required": ["source", "start", "end", "mark"],
+      "properties": {
+        "source": { "type": "string" },
+        "start": { "$ref": "#/$defs/pos" },
+        "end": { "$ref": "#/$defs/pos" },
+        "mark": { "enum": ["circle", "underline", "box", "bracket", "highlight", "arrow", "strike"] },
+        "tone": { "enum": ["accent", "error"] },
+        "label": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "frame": {
+      "type": "object",
+      "required": ["id", "name", "locals"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "line": { "type": "integer", "minimum": 0 },
+        "locals": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [{ "type": "string" }, { "$ref": "#/$defs/value" }],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "returnValue": { "$ref": "#/$defs/value" },
+        "yieldValue": { "$ref": "#/$defs/value" }
+      },
+      "additionalProperties": false
+    },
+    "step": {
+      "type": "object",
+      "required": ["kind", "focus", "stack", "heap"],
+      "properties": {
+        "kind": { "enum": ["statement", "expression", "call", "return", "exception", "note"] },
+        "focus": { "type": "array", "items": { "$ref": "#/$defs/mark" } },
+        "caption": { "type": "string" },
+        "captionOrigin": { "enum": ["template", "author", "ai"] },
+        "stack": {
+          "description": "Frames, outermost first.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/frame" }
+        },
+        "heap": {
+          "description": "Object versions alive at this step ('<objectId>@<version>').",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "stdout": { "description": "Text printed DURING this step (a delta).", "type": "string" },
+        "changes": {
+          "description": "Optional override of what changed; renderers diff consecutive steps when absent.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["focus", "to"],
+            "properties": {
+              "focus": { "type": "integer", "minimum": 0 },
+              "to": { "type": "string" }
+            }
+          }
+        },
+        "hints": { "type": "object", "additionalProperties": { "type": "string" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

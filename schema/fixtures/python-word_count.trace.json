@@ -1,0 +1,935 @@
+{
+ "schema": "visset.trace/0.1",
+ "meta": {
+  "language": "python",
+  "runtime": "CPython",
+  "generator": "visset",
+  "origin": "traced",
+  "title": "word_count.py",
+  "entry": null,
+  "truncated": null,
+  "error": null
+ },
+ "sources": [
+  {
+   "id": "main",
+   "path": "word_count.py",
+   "text": "text = \"the cat saw the dog\"\ncounts = {}\nfor word in text.split():\n    counts[word] = counts.get(word, 0) + 1\nprint(counts)\n",
+   "tokens": [
+    [
+     1,
+     7,
+     28,
+     "string"
+    ],
+    [
+     3,
+     0,
+     3,
+     "keyword"
+    ],
+    [
+     3,
+     9,
+     11,
+     "keyword"
+    ],
+    [
+     3,
+     17,
+     22,
+     "call"
+    ],
+    [
+     4,
+     26,
+     29,
+     "call"
+    ],
+    [
+     4,
+     36,
+     37,
+     "number"
+    ],
+    [
+     4,
+     41,
+     42,
+     "number"
+    ],
+    [
+     5,
+     0,
+     5,
+     "builtin"
+    ]
+   ]
+  }
+ ],
+ "objects": {
+  "o1@0": {
+   "type": "dict",
+   "shape": "mapping",
+   "entries": []
+  },
+  "o1@1": {
+   "type": "dict",
+   "shape": "mapping",
+   "entries": [
+    [
+     {
+      "p": "'the'",
+      "t": "str"
+     },
+     {
+      "p": "1",
+      "t": "int"
+     }
+    ]
+   ]
+  },
+  "o1@2": {
+   "type": "dict",
+   "shape": "mapping",
+   "entries": [
+    [
+     {
+      "p": "'the'",
+      "t": "str"
+     },
+     {
+      "p": "1",
+      "t": "int"
+     }
+    ],
+    [
+     {
+      "p": "'cat'",
+      "t": "str"
+     },
+     {
+      "p": "1",
+      "t": "int"
+     }
+    ]
+   ]
+  },
+  "o1@3": {
+   "type": "dict",
+   "shape": "mapping",
+   "entries": [
+    [
+     {
+      "p": "'the'",
+      "t": "str"
+     },
+     {
+      "p": "1",
+      "t": "int"
+     }
+    ],
+    [
+     {
+      "p": "'cat'",
+      "t": "str"
+     },
+     {
+      "p": "1",
+      "t": "int"
+     }
+    ],
+    [
+     {
+      "p": "'saw'",
+      "t": "str"
+     },
+     {
+      "p": "1",
+      "t": "int"
+     }
+    ]
+   ]
+  },
+  "o1@4": {
+   "type": "dict",
+   "shape": "mapping",
+   "entries": [
+    [
+     {
+      "p": "'the'",
+      "t": "str"
+     },
+     {
+      "p": "2",
+      "t": "int"
+     }
+    ],
+    [
+     {
+      "p": "'cat'",
+      "t": "str"
+     },
+     {
+      "p": "1",
+      "t": "int"
+     }
+    ],
+    [
+     {
+      "p": "'saw'",
+      "t": "str"
+     },
+     {
+      "p": "1",
+      "t": "int"
+     }
+    ]
+   ]
+  },
+  "o1@5": {
+   "type": "dict",
+   "shape": "mapping",
+   "entries": [
+    [
+     {
+      "p": "'the'",
+      "t": "str"
+     },
+     {
+      "p": "2",
+      "t": "int"
+     }
+    ],
+    [
+     {
+      "p": "'cat'",
+      "t": "str"
+     },
+     {
+      "p": "1",
+      "t": "int"
+     }
+    ],
+    [
+     {
+      "p": "'saw'",
+      "t": "str"
+     },
+     {
+      "p": "1",
+      "t": "int"
+     }
+    ],
+    [
+     {
+      "p": "'dog'",
+      "t": "str"
+     },
+     {
+      "p": "1",
+      "t": "int"
+     }
+    ]
+   ]
+  }
+ },
+ "steps": [
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      1,
+      0
+     ],
+     "end": [
+      1,
+      28
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`text` becomes `'the cat saw the dog'`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 2,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [],
+   "changes": [
+    "f1.text"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      2,
+      0
+     ],
+     "end": [
+      2,
+      11
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`counts` becomes `{}`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 3,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      4
+     ],
+     "end": [
+      3,
+      24
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "Next item: `word` = `'the'`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 4,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'the'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      42
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`counts['the']` becomes `1`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 3,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'the'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@1"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      4
+     ],
+     "end": [
+      3,
+      24
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "Next item: `word` = `'cat'`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 4,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'cat'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@1"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      42
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`counts['cat']` becomes `1`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 3,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'cat'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@2"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      4
+     ],
+     "end": [
+      3,
+      24
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "Next item: `word` = `'saw'`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 4,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'saw'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@2"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      42
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`counts['saw']` becomes `1`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 3,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'saw'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@3"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      4
+     ],
+     "end": [
+      3,
+      24
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "Next item: `word` = `'the'`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 4,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'the'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@3"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      42
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`counts['the']` becomes `2`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 3,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'the'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@4"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      4
+     ],
+     "end": [
+      3,
+      24
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "Next item: `word` = `'dog'`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 4,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'dog'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@4"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      4
+     ],
+     "end": [
+      4,
+      42
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`counts['dog']` becomes `1`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 3,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'dog'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@5"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      4
+     ],
+     "end": [
+      3,
+      24
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "No items left, so the loop ends.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 5,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'dog'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@5"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      5,
+      0
+     ],
+     "end": [
+      5,
+      13
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Print `{'the': 2, 'cat': 1, 'saw': 1, 'dog': 1}`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 5,
+     "locals": [
+      [
+       "text",
+       {
+        "p": "'the cat saw the dog'",
+        "t": "str"
+       }
+      ],
+      [
+       "counts",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "word",
+       {
+        "p": "'dog'",
+        "t": "str"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@5"
+   ],
+   "stdout": "{'the': 2, 'cat': 1, 'saw': 1, 'dog': 1}\n"
+  }
+ ]
+}
