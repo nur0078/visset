@@ -1,7 +1,7 @@
 # A tiny autograd engine in the style of micrograd: each Value remembers the
 # Values it was made from (_prev), so backward() can walk the graph.
-# micrograd keeps _prev in a set; a tuple keeps this example's trace the same on every run.
-import math
+# micrograd keeps _prev in a set; a tuple keeps this example's trace the same on every run,
+# and relu (not tanh, whose last digit varies by platform) keeps the numbers exact.
 
 
 class Value:
@@ -33,12 +33,11 @@ class Value:
         out._backward = _backward
         return out
 
-    def tanh(self):
-        t = math.tanh(self.data)
-        out = Value(t, (self,), "tanh")
+    def relu(self):
+        out = Value(max(0.0, self.data), (self,), "relu")
 
         def _backward():
-            self.grad += (1 - t**2) * out.grad
+            self.grad += (out.data > 0) * out.grad
 
         out._backward = _backward
         return out
@@ -65,7 +64,7 @@ w = Value(-3.0, label="w")
 b = Value(6.88, label="b")
 n = x * w + b
 n.label = "n"
-o = n.tanh()
+o = n.relu()
 o.label = "o"
 o.backward()
 print(round(x.grad, 4), round(w.grad, 4))

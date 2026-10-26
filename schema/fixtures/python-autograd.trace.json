@@ -14,7 +14,7 @@
   {
    "id": "main",
    "path": "autograd.py",
-   "text": "# A tiny autograd engine in the style of micrograd: each Value remembers the\n# Values it was made from (_prev), so backward() can walk the graph.\n# micrograd keeps _prev in a set; a tuple keeps this example's trace the same on every run.\nimport math\n\n\nclass Value:\n    def __init__(self, data, _children=(), _op=\"\", label=\"\"):\n        self.data = data\n        self.grad = 0.0\n        self._backward = lambda: None\n        self._prev = tuple(_children)\n        self._op = _op\n        self.label = label\n\n    def __add__(self, other):\n        out = Value(self.data + other.data, (self, other), \"+\")\n\n        def _backward():\n            self.grad += out.grad\n            other.grad += out.grad\n\n        out._backward = _backward\n        return out\n\n    def __mul__(self, other):\n        out = Value(self.data * other.data, (self, other), \"*\")\n\n        def _backward():\n            self.grad += other.data * out.grad\n            other.grad += self.data * out.grad\n\n        out._backward = _backward\n        return out\n\n    def tanh(self):\n        t = math.tanh(self.data)\n        out = Value(t, (self,), \"tanh\")\n\n        def _backward():\n            self.grad += (1 - t**2) * out.grad\n\n        out._backward = _backward\n        return out\n\n    def backward(self):\n        topo = []\n        visited = set()\n\n        def build_topo(v):\n            if v not in visited:\n                visited.add(v)\n                for child in v._prev:\n                    build_topo(child)\n                topo.append(v)\n\n        build_topo(self)\n        self.grad = 1.0\n        for node in reversed(topo):\n            node._backward()\n\n\nx = Value(2.0, label=\"x\")\nw = Value(-3.0, label=\"w\")\nb = Value(6.88, label=\"b\")\nn = x * w + b\nn.label = \"n\"\no = n.tanh()\no.label = \"o\"\no.backward()\nprint(round(x.grad, 4), round(w.grad, 4))\n",
+   "text": "# A tiny autograd engine in the style of micrograd: each Value remembers the\n# Values it was made from (_prev), so backward() can walk the graph.\n# micrograd keeps _prev in a set; a tuple keeps this example's trace the same on every run,\n# and relu (not tanh, whose last digit varies by platform) keeps the numbers exact.\n\n\nclass Value:\n    def __init__(self, data, _children=(), _op=\"\", label=\"\"):\n        self.data = data\n        self.grad = 0.0\n        self._backward = lambda: None\n        self._prev = tuple(_children)\n        self._op = _op\n        self.label = label\n\n    def __add__(self, other):\n        out = Value(self.data + other.data, (self, other), \"+\")\n\n        def _backward():\n            self.grad += out.grad\n            other.grad += out.grad\n\n        out._backward = _backward\n        return out\n\n    def __mul__(self, other):\n        out = Value(self.data * other.data, (self, other), \"*\")\n\n        def _backward():\n            self.grad += other.data * out.grad\n            other.grad += self.data * out.grad\n\n        out._backward = _backward\n        return out\n\n    def relu(self):\n        out = Value(max(0.0, self.data), (self,), \"relu\")\n\n        def _backward():\n            self.grad += (out.data > 0) * out.grad\n\n        out._backward = _backward\n        return out\n\n    def backward(self):\n        topo = []\n        visited = set()\n\n        def build_topo(v):\n            if v not in visited:\n                visited.add(v)\n                for child in v._prev:\n                    build_topo(child)\n                topo.append(v)\n\n        build_topo(self)\n        self.grad = 1.0\n        for node in reversed(topo):\n            node._backward()\n\n\nx = Value(2.0, label=\"x\")\nw = Value(-3.0, label=\"w\")\nb = Value(6.88, label=\"b\")\nn = x * w + b\nn.label = \"n\"\no = n.relu()\no.label = \"o\"\no.backward()\nprint(round(x.grad, 4), round(w.grad, 4))\n",
    "tokens": [
     [
      1,
@@ -37,8 +37,8 @@
     [
      4,
      0,
-     6,
-     "keyword"
+     83,
+     "comment"
     ],
     [
      7,
@@ -198,270 +198,270 @@
     ],
     [
      37,
-     17,
-     21,
-     "call"
-    ],
-    [
-     38,
      14,
      19,
      "call"
     ],
     [
-     38,
-     32,
-     38,
+     37,
+     20,
+     23,
+     "builtin"
+    ],
+    [
+     37,
+     24,
+     27,
+     "number"
+    ],
+    [
+     37,
+     50,
+     56,
      "string"
     ],
     [
-     40,
+     39,
      8,
      11,
      "keyword"
     ],
     [
-     40,
+     39,
      12,
      21,
      "definition"
     ],
     [
-     41,
-     26,
-     27,
+     40,
+     37,
+     38,
      "number"
     ],
     [
-     41,
-     33,
-     34,
-     "number"
-    ],
-    [
-     44,
+     43,
      8,
      14,
      "keyword"
     ],
     [
-     46,
+     45,
      4,
      7,
      "keyword"
     ],
     [
-     46,
+     45,
      8,
      16,
      "definition"
     ],
     [
-     48,
+     47,
      18,
      21,
      "builtin"
     ],
     [
-     50,
+     49,
      8,
      11,
      "keyword"
     ],
     [
-     50,
+     49,
      12,
      22,
      "definition"
     ],
     [
-     51,
+     50,
      12,
      14,
      "keyword"
     ],
     [
-     51,
+     50,
      17,
      20,
      "keyword"
     ],
     [
-     51,
+     50,
      21,
      23,
      "keyword"
     ],
     [
-     52,
+     51,
      24,
      27,
      "call"
     ],
     [
-     53,
+     52,
      16,
      19,
      "keyword"
     ],
     [
-     53,
+     52,
      26,
      28,
      "keyword"
     ],
     [
-     54,
+     53,
      20,
      30,
      "call"
     ],
     [
-     55,
+     54,
      21,
      27,
      "call"
     ],
     [
-     57,
+     56,
      8,
      18,
      "call"
     ],
     [
-     58,
+     57,
      20,
      23,
      "number"
     ],
     [
-     59,
+     58,
      8,
      11,
      "keyword"
     ],
     [
-     59,
+     58,
      17,
      19,
      "keyword"
     ],
     [
-     59,
+     58,
      20,
      28,
      "builtin"
     ],
     [
-     60,
+     59,
      17,
      26,
      "call"
     ],
     [
-     63,
+     62,
      4,
      9,
      "call"
     ],
     [
-     63,
+     62,
      10,
      13,
      "number"
     ],
     [
-     63,
+     62,
      21,
      24,
      "string"
     ],
     [
-     64,
+     63,
      4,
      9,
      "call"
     ],
     [
-     64,
+     63,
      11,
      14,
      "number"
     ],
     [
+     63,
+     22,
+     25,
+     "string"
+    ],
+    [
+     64,
+     4,
+     9,
+     "call"
+    ],
+    [
+     64,
+     10,
+     14,
+     "number"
+    ],
+    [
      64,
      22,
      25,
      "string"
     ],
     [
-     65,
-     4,
-     9,
-     "call"
-    ],
-    [
-     65,
-     10,
-     14,
-     "number"
-    ],
-    [
-     65,
-     22,
-     25,
-     "string"
-    ],
-    [
-     67,
+     66,
      10,
      13,
      "string"
     ],
     [
-     68,
+     67,
      6,
      10,
      "call"
     ],
     [
-     69,
+     68,
      10,
      13,
      "string"
     ],
     [
-     70,
+     69,
      2,
      10,
      "call"
     ],
     [
-     71,
+     70,
      0,
      5,
      "builtin"
     ],
     [
-     71,
+     70,
      6,
      11,
      "builtin"
     ],
     [
-     71,
+     70,
      20,
      21,
      "number"
     ],
     [
-     71,
+     70,
      24,
      29,
      "builtin"
     ],
     [
-     71,
+     70,
      38,
      39,
      "number"
@@ -1603,7 +1603,7 @@
     [
      "data",
      {
-      "p": "0.7064193203972353",
+      "p": "0.8799999999999999",
       "t": "float"
      }
     ]
@@ -1616,7 +1616,7 @@
     [
      "data",
      {
-      "p": "0.7064193203972353",
+      "p": "0.8799999999999999",
       "t": "float"
      }
     ],
@@ -1636,7 +1636,7 @@
     [
      "data",
      {
-      "p": "0.7064193203972353",
+      "p": "0.8799999999999999",
       "t": "float"
      }
     ],
@@ -1667,7 +1667,7 @@
     [
      "data",
      {
-      "p": "0.7064193203972353",
+      "p": "0.8799999999999999",
       "t": "float"
      }
     ],
@@ -1699,7 +1699,7 @@
     [
      "data",
      {
-      "p": "0.7064193203972353",
+      "p": "0.8799999999999999",
       "t": "float"
      }
     ],
@@ -1725,7 +1725,7 @@
     [
      "_op",
      {
-      "p": "'tanh'",
+      "p": "'relu'",
       "t": "str"
      }
     ]
@@ -1738,7 +1738,7 @@
     [
      "data",
      {
-      "p": "0.7064193203972353",
+      "p": "0.8799999999999999",
       "t": "float"
      }
     ],
@@ -1764,7 +1764,7 @@
     [
      "_op",
      {
-      "p": "'tanh'",
+      "p": "'relu'",
       "t": "str"
      }
     ],
@@ -1780,7 +1780,7 @@
   "o20@0": {
    "type": "function",
    "shape": "function",
-   "repr": "Value.tanh.<locals>._backward()"
+   "repr": "Value.relu.<locals>._backward()"
   },
   "o17@7": {
    "type": "Value",
@@ -1789,7 +1789,7 @@
     [
      "data",
      {
-      "p": "0.7064193203972353",
+      "p": "0.8799999999999999",
       "t": "float"
      }
     ],
@@ -1815,7 +1815,7 @@
     [
      "_op",
      {
-      "p": "'tanh'",
+      "p": "'relu'",
       "t": "str"
      }
     ],
@@ -1835,7 +1835,7 @@
     [
      "data",
      {
-      "p": "0.7064193203972353",
+      "p": "0.8799999999999999",
       "t": "float"
      }
     ],
@@ -1861,7 +1861,7 @@
     [
      "_op",
      {
-      "p": "'tanh'",
+      "p": "'relu'",
       "t": "str"
      }
     ],
@@ -2094,7 +2094,7 @@
     [
      "data",
      {
-      "p": "0.7064193203972353",
+      "p": "0.8799999999999999",
       "t": "float"
      }
     ],
@@ -2120,7 +2120,7 @@
     [
      "_op",
      {
-      "p": "'tanh'",
+      "p": "'relu'",
       "t": "str"
      }
     ],
@@ -2147,7 +2147,7 @@
     [
      "grad",
      {
-      "p": "0.5009717437695083",
+      "p": "1.0",
       "t": "float"
      }
     ],
@@ -2193,7 +2193,7 @@
     [
      "grad",
      {
-      "p": "0.5009717437695083",
+      "p": "1.0",
       "t": "float"
      }
     ],
@@ -2239,7 +2239,7 @@
     [
      "grad",
      {
-      "p": "0.5009717437695083",
+      "p": "1.0",
       "t": "float"
      }
     ],
@@ -2285,7 +2285,7 @@
     [
      "grad",
      {
-      "p": "-1.5029152313085248",
+      "p": "-3.0",
       "t": "float"
      }
     ],
@@ -2331,7 +2331,7 @@
     [
      "grad",
      {
-      "p": "1.0019434875390165",
+      "p": "2.0",
       "t": "float"
      }
     ],
@@ -2371,35 +2371,6 @@
     {
      "source": "main",
      "start": [
-      4,
-      0
-     ],
-     "end": [
-      4,
-      11
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "Import: `import math`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 7,
-     "locals": []
-    }
-   ],
-   "heap": [],
-   "changes": []
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
       7,
       0
      ],
@@ -2416,7 +2387,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 63,
+     "line": 62,
      "locals": [
       [
        "Value",
@@ -2429,6 +2400,9 @@
    ],
    "heap": [
     "o1@0"
+   ],
+   "changes": [
+    "f1.Value"
    ]
   },
   {
@@ -2437,11 +2411,11 @@
     {
      "source": "main",
      "start": [
-      63,
+      62,
       0
      ],
      "end": [
-      63,
+      62,
       25
      ],
      "mark": "circle"
@@ -2453,7 +2427,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 63,
+     "line": 62,
      "locals": [
       [
        "Value",
@@ -2532,7 +2506,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 63,
+     "line": 62,
      "locals": [
       [
        "Value",
@@ -2611,7 +2585,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 63,
+     "line": 62,
      "locals": [
       [
        "Value",
@@ -2690,7 +2664,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 63,
+     "line": 62,
      "locals": [
       [
        "Value",
@@ -2770,7 +2744,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 63,
+     "line": 62,
      "locals": [
       [
        "Value",
@@ -2850,7 +2824,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 63,
+     "line": 62,
      "locals": [
       [
        "Value",
@@ -2930,7 +2904,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 63,
+     "line": 62,
      "locals": [
       [
        "Value",
@@ -2998,11 +2972,11 @@
     {
      "source": "main",
      "start": [
-      63,
+      62,
       0
      ],
      "end": [
-      63,
+      62,
       25
      ],
      "mark": "circle"
@@ -3014,7 +2988,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 64,
+     "line": 63,
      "locals": [
       [
        "Value",
@@ -3044,11 +3018,11 @@
     {
      "source": "main",
      "start": [
-      64,
+      63,
       0
      ],
      "end": [
-      64,
+      63,
       26
      ],
      "mark": "circle"
@@ -3060,7 +3034,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 64,
+     "line": 63,
      "locals": [
       [
        "Value",
@@ -3147,7 +3121,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 64,
+     "line": 63,
      "locals": [
       [
        "Value",
@@ -3234,7 +3208,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 64,
+     "line": 63,
      "locals": [
       [
        "Value",
@@ -3321,7 +3295,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 64,
+     "line": 63,
      "locals": [
       [
        "Value",
@@ -3409,7 +3383,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 64,
+     "line": 63,
      "locals": [
       [
        "Value",
@@ -3497,7 +3471,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 64,
+     "line": 63,
      "locals": [
       [
        "Value",
@@ -3585,7 +3559,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 64,
+     "line": 63,
      "locals": [
       [
        "Value",
@@ -3661,11 +3635,11 @@
     {
      "source": "main",
      "start": [
-      64,
+      63,
       0
      ],
      "end": [
-      64,
+      63,
       26
      ],
      "mark": "circle"
@@ -3677,7 +3651,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 65,
+     "line": 64,
      "locals": [
       [
        "Value",
@@ -3715,11 +3689,11 @@
     {
      "source": "main",
      "start": [
-      65,
+      64,
       0
      ],
      "end": [
-      65,
+      64,
       26
      ],
      "mark": "circle"
@@ -3731,7 +3705,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 65,
+     "line": 64,
      "locals": [
       [
        "Value",
@@ -3826,7 +3800,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 65,
+     "line": 64,
      "locals": [
       [
        "Value",
@@ -3921,7 +3895,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 65,
+     "line": 64,
      "locals": [
       [
        "Value",
@@ -4016,7 +3990,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 65,
+     "line": 64,
      "locals": [
       [
        "Value",
@@ -4112,7 +4086,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 65,
+     "line": 64,
      "locals": [
       [
        "Value",
@@ -4208,7 +4182,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 65,
+     "line": 64,
      "locals": [
       [
        "Value",
@@ -4304,7 +4278,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 65,
+     "line": 64,
      "locals": [
       [
        "Value",
@@ -4388,11 +4362,11 @@
     {
      "source": "main",
      "start": [
-      65,
+      64,
       0
      ],
      "end": [
-      65,
+      64,
       26
      ],
      "mark": "circle"
@@ -4404,7 +4378,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -4450,11 +4424,11 @@
     {
      "source": "main",
      "start": [
-      66,
+      65,
       0
      ],
      "end": [
-      66,
+      65,
       13
      ],
      "mark": "circle"
@@ -4466,7 +4440,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -4547,7 +4521,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -4670,7 +4644,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -4793,7 +4767,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -4916,7 +4890,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -5040,7 +5014,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -5164,7 +5138,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -5288,7 +5262,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -5416,7 +5390,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -5506,7 +5480,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -5603,7 +5577,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -5699,7 +5673,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -5782,11 +5756,11 @@
     {
      "source": "main",
      "start": [
-      66,
+      65,
       0
      ],
      "end": [
-      66,
+      65,
       13
      ],
      "mark": "circle"
@@ -5798,7 +5772,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -5882,7 +5856,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -6008,7 +5982,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -6134,7 +6108,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -6260,7 +6234,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -6387,7 +6361,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -6514,7 +6488,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -6641,7 +6615,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -6772,7 +6746,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -6865,7 +6839,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -6965,7 +6939,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -7064,7 +7038,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 66,
+     "line": 65,
      "locals": [
       [
        "Value",
@@ -7150,11 +7124,11 @@
     {
      "source": "main",
      "start": [
-      66,
+      65,
       0
      ],
      "end": [
-      66,
+      65,
       13
      ],
      "mark": "circle"
@@ -7166,7 +7140,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 67,
+     "line": 66,
      "locals": [
       [
        "Value",
@@ -7224,11 +7198,11 @@
     {
      "source": "main",
      "start": [
-      67,
+      66,
       0
      ],
      "end": [
-      67,
+      66,
       13
      ],
      "mark": "circle"
@@ -7240,7 +7214,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -7298,23 +7272,23 @@
     {
      "source": "main",
      "start": [
-      68,
+      67,
       0
      ],
      "end": [
-      68,
+      67,
       12
      ],
      "mark": "circle"
     }
    ],
-   "caption": "Call `Value.tanh(self=Value(data=0.879999…)`.",
+   "caption": "Call `Value.relu(self=Value(data=0.879999…)`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -7350,7 +7324,7 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
+     "name": "Value.relu",
      "line": 37,
      "locals": [
       [
@@ -7380,122 +7354,28 @@
    ]
   },
   {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      37,
-      8
-     ],
-     "end": [
-      37,
-      32
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "`t` becomes `0.7064193203972353`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 68,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f9",
-     "name": "Value.tanh",
-     "line": 38,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@6",
-    "o13@8",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o9@7",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
    "kind": "call",
    "focus": [
     {
      "source": "main",
      "start": [
-      38,
+      37,
       8
      ],
      "end": [
-      38,
-      39
+      37,
+      57
      ],
      "mark": "circle"
     }
    ],
-   "caption": "Call `Value.__init__(self=Value(), data=0.7064193203972353, _chil…`.",
+   "caption": "Call `Value.__init__(self=Value(), data=0.8799999999999999, _chil…`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -7531,20 +7411,13 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
-     "line": 38,
+     "name": "Value.relu",
+     "line": 37,
      "locals": [
       [
        "self",
        {
         "ref": "o13"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ]
@@ -7563,7 +7436,7 @@
       [
        "data",
        {
-        "p": "0.7064193203972353",
+        "p": "0.8799999999999999",
         "t": "float"
        }
       ],
@@ -7576,7 +7449,7 @@
       [
        "_op",
        {
-        "p": "'tanh'",
+        "p": "'relu'",
         "t": "str"
        }
       ],
@@ -7625,13 +7498,13 @@
      "mark": "circle"
     }
    ],
-   "caption": "`self.data` becomes `0.7064193203972353`.",
+   "caption": "`self.data` becomes `0.8799999999999999`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -7667,20 +7540,13 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
-     "line": 38,
+     "name": "Value.relu",
+     "line": 37,
      "locals": [
       [
        "self",
        {
         "ref": "o13"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ]
@@ -7699,7 +7565,7 @@
       [
        "data",
        {
-        "p": "0.7064193203972353",
+        "p": "0.8799999999999999",
         "t": "float"
        }
       ],
@@ -7712,7 +7578,7 @@
       [
        "_op",
        {
-        "p": "'tanh'",
+        "p": "'relu'",
         "t": "str"
        }
       ],
@@ -7767,7 +7633,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -7803,20 +7669,13 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
-     "line": 38,
+     "name": "Value.relu",
+     "line": 37,
      "locals": [
       [
        "self",
        {
         "ref": "o13"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ]
@@ -7835,7 +7694,7 @@
       [
        "data",
        {
-        "p": "0.7064193203972353",
+        "p": "0.8799999999999999",
         "t": "float"
        }
       ],
@@ -7848,7 +7707,7 @@
       [
        "_op",
        {
-        "p": "'tanh'",
+        "p": "'relu'",
         "t": "str"
        }
       ],
@@ -7903,7 +7762,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -7939,20 +7798,13 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
-     "line": 38,
+     "name": "Value.relu",
+     "line": 37,
      "locals": [
       [
        "self",
        {
         "ref": "o13"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ]
@@ -7971,7 +7823,7 @@
       [
        "data",
        {
-        "p": "0.7064193203972353",
+        "p": "0.8799999999999999",
         "t": "float"
        }
       ],
@@ -7984,7 +7836,7 @@
       [
        "_op",
        {
-        "p": "'tanh'",
+        "p": "'relu'",
         "t": "str"
        }
       ],
@@ -8040,7 +7892,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -8076,20 +7928,13 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
-     "line": 38,
+     "name": "Value.relu",
+     "line": 37,
      "locals": [
       [
        "self",
        {
         "ref": "o13"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ]
@@ -8108,7 +7953,7 @@
       [
        "data",
        {
-        "p": "0.7064193203972353",
+        "p": "0.8799999999999999",
         "t": "float"
        }
       ],
@@ -8121,7 +7966,7 @@
       [
        "_op",
        {
-        "p": "'tanh'",
+        "p": "'relu'",
         "t": "str"
        }
       ],
@@ -8171,13 +8016,13 @@
      "mark": "circle"
     }
    ],
-   "caption": "`self._op` becomes `'tanh'`.",
+   "caption": "`self._op` becomes `'relu'`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -8213,20 +8058,13 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
-     "line": 38,
+     "name": "Value.relu",
+     "line": 37,
      "locals": [
       [
        "self",
        {
         "ref": "o13"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ]
@@ -8245,7 +8083,7 @@
       [
        "data",
        {
-        "p": "0.7064193203972353",
+        "p": "0.8799999999999999",
         "t": "float"
        }
       ],
@@ -8258,7 +8096,7 @@
       [
        "_op",
        {
-        "p": "'tanh'",
+        "p": "'relu'",
         "t": "str"
        }
       ],
@@ -8314,7 +8152,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -8350,20 +8188,13 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
-     "line": 38,
+     "name": "Value.relu",
+     "line": 37,
      "locals": [
       [
        "self",
        {
         "ref": "o13"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ]
@@ -8382,7 +8213,7 @@
       [
        "data",
        {
-        "p": "0.7064193203972353",
+        "p": "0.8799999999999999",
         "t": "float"
        }
       ],
@@ -8395,7 +8226,7 @@
       [
        "_op",
        {
-        "p": "'tanh'",
+        "p": "'relu'",
         "t": "str"
        }
       ],
@@ -8439,23 +8270,23 @@
     {
      "source": "main",
      "start": [
-      38,
+      37,
       8
      ],
      "end": [
-      38,
-      39
+      37,
+      57
      ],
      "mark": "circle"
     }
    ],
-   "caption": "`out` becomes `Value(data=0.7064193203972353, grad=0.0…`.",
+   "caption": "`out` becomes `Value(data=0.8799999999999999, grad=0.0…`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -8491,8 +8322,8 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
-     "line": 40,
+     "name": "Value.relu",
+     "line": 39,
      "locals": [
       [
        "self",
@@ -8504,13 +8335,6 @@
        "out",
        {
         "ref": "o17"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ]
@@ -8542,11 +8366,11 @@
     {
      "source": "main",
      "start": [
-      40,
+      39,
       8
      ],
      "end": [
-      40,
+      39,
       23
      ],
      "mark": "underline"
@@ -8558,7 +8382,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -8594,8 +8418,8 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
-     "line": 43,
+     "name": "Value.relu",
+     "line": 42,
      "locals": [
       [
        "self",
@@ -8613,13 +8437,6 @@
        "out",
        {
         "ref": "o17"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ]
@@ -8652,23 +8469,23 @@
     {
      "source": "main",
      "start": [
-      43,
+      42,
       8
      ],
      "end": [
-      43,
+      42,
       33
      ],
      "mark": "circle"
     }
    ],
-   "caption": "`out._backward` becomes `function Value.tanh.<locals>._backward()`.",
+   "caption": "`out._backward` becomes `function Value.relu.<locals>._backward()`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -8704,8 +8521,8 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
-     "line": 44,
+     "name": "Value.relu",
+     "line": 43,
      "locals": [
       [
        "self",
@@ -8723,13 +8540,6 @@
        "out",
        {
         "ref": "o17"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ]
@@ -8761,23 +8571,23 @@
     {
      "source": "main",
      "start": [
-      44,
+      43,
       8
      ],
      "end": [
-      44,
+      43,
       18
      ],
      "mark": "circle"
     }
    ],
-   "caption": "`Value.tanh` returns `Value(data=0.7064193203972353, grad=0.0…`.",
+   "caption": "`Value.relu` returns `Value(data=0.8799999999999999, grad=0.0…`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 68,
+     "line": 67,
      "locals": [
       [
        "Value",
@@ -8813,8 +8623,8 @@
     },
     {
      "id": "f9",
-     "name": "Value.tanh",
-     "line": 44,
+     "name": "Value.relu",
+     "line": 43,
      "locals": [
       [
        "self",
@@ -8832,13 +8642,6 @@
        "out",
        {
         "ref": "o17"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ],
@@ -8873,17 +8676,100 @@
     {
      "source": "main",
      "start": [
-      68,
+      67,
       0
      ],
      "end": [
-      68,
+      67,
       12
      ],
      "mark": "circle"
     }
    ],
-   "caption": "`o` becomes `Value(data=0.7064193203972353, grad=0.0…`.",
+   "caption": "`o` becomes `Value(data=0.8799999999999999, grad=0.0…`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 68,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@6",
+    "o5@6",
+    "o7@6",
+    "o13@8",
+    "o17@7",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@7",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      68,
+      0
+     ],
+     "end": [
+      68,
+      13
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`o.label` becomes `'o'`.",
    "captionOrigin": "template",
    "stack": [
     {
@@ -8936,7 +8822,7 @@
     "o5@6",
     "o7@6",
     "o13@8",
-    "o17@7",
+    "o17@8",
     "o4@0",
     "o3@0",
     "o6@0",
@@ -8951,7 +8837,7 @@
    ]
   },
   {
-   "kind": "statement",
+   "kind": "call",
    "focus": [
     {
      "source": "main",
@@ -8961,18 +8847,18 @@
      ],
      "end": [
       69,
-      13
+      12
      ],
      "mark": "circle"
     }
    ],
-   "caption": "`o.label` becomes `'o'`.",
+   "caption": "Call `Value.backward(self=Value(data=0.879999…)`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -9011,6 +8897,19 @@
        }
       ]
      ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 46,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
     }
    ],
    "heap": [
@@ -9034,28 +8933,28 @@
    ]
   },
   {
-   "kind": "call",
+   "kind": "statement",
    "focus": [
     {
      "source": "main",
      "start": [
-      70,
-      0
+      46,
+      8
      ],
      "end": [
-      70,
-      12
+      46,
+      17
      ],
      "mark": "circle"
     }
    ],
-   "caption": "Call `Value.backward(self=Value(data=0.706419…)`.",
+   "caption": "`topo` becomes `[]`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -9105,102 +9004,6 @@
        {
         "ref": "o17"
        }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@6",
-    "o13@8",
-    "o17@8",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@7",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      47,
-      8
-     ],
-     "end": [
-      47,
-      17
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "`topo` becomes `[]`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 48,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
       ],
       [
        "topo",
@@ -9238,11 +9041,11 @@
     {
      "source": "main",
      "start": [
-      48,
+      47,
       8
      ],
      "end": [
-      48,
+      47,
       23
      ],
      "mark": "circle"
@@ -9254,7 +9057,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -9297,7 +9100,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 50,
+     "line": 49,
      "locals": [
       [
        "self",
@@ -9348,11 +9151,11 @@
     {
      "source": "main",
      "start": [
-      50,
+      49,
       8
      ],
      "end": [
-      50,
+      49,
       25
      ],
      "mark": "underline"
@@ -9364,7 +9167,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -9407,7 +9210,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -9465,610 +9268,12 @@
     {
      "source": "main",
      "start": [
-      57,
+      56,
       8
      ],
      "end": [
-      57,
+      56,
       24
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "Call `Value.backward.<locals>.build_topo(v=Value(data=0.706419…)`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 57,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f12",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 51,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@6",
-    "o13@8",
-    "o17@8",
-    "o23@0",
-    "o21@0",
-    "o22@0",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@7",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      51,
-      15
-     ],
-     "end": [
-      51,
-      31
-     ],
-     "mark": "underline"
-    }
-   ],
-   "caption": "`v not in visited` is true, so the indented block runs.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 57,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f12",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 52,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@6",
-    "o13@8",
-    "o17@8",
-    "o23@0",
-    "o21@0",
-    "o22@0",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@7",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      52,
-      16
-     ],
-     "end": [
-      52,
-      30
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "`visited` is updated to `{Value(data=0.7064193203972353, grad=0.…`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 57,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f12",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 53,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@6",
-    "o13@8",
-    "o17@8",
-    "o23@0",
-    "o21@0",
-    "o22@1",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@7",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      53,
-      20
-     ],
-     "end": [
-      53,
-      36
-     ],
-     "mark": "underline"
-    }
-   ],
-   "caption": "Next item: `child` = `Value(data=0.8799999999999999, grad=0.0…`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 57,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f12",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@6",
-    "o13@8",
-    "o17@8",
-    "o23@0",
-    "o21@0",
-    "o22@1",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@7",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "call",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      54,
-      20
-     ],
-     "end": [
-      54,
-      37
      ],
      "mark": "circle"
     }
@@ -10079,7 +9284,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -10122,7 +9327,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -10153,49 +9358,12 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 50,
      "locals": [
       [
        "v",
        {
         "ref": "o17"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f13",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 51,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o13"
        }
       ],
       [
@@ -10228,7 +9396,7 @@
     "o17@8",
     "o23@0",
     "o21@0",
-    "o22@1",
+    "o22@0",
     "o4@0",
     "o3@0",
     "o6@0",
@@ -10248,11 +9416,11 @@
     {
      "source": "main",
      "start": [
-      51,
+      50,
       15
      ],
      "end": [
-      51,
+      50,
       31
      ],
      "mark": "underline"
@@ -10264,7 +9432,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -10307,7 +9475,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -10338,49 +9506,12 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 51,
      "locals": [
       [
        "v",
        {
         "ref": "o17"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f13",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 52,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o13"
        }
       ],
       [
@@ -10413,7 +9544,7 @@
     "o17@8",
     "o23@0",
     "o21@0",
-    "o22@1",
+    "o22@0",
     "o4@0",
     "o3@0",
     "o6@0",
@@ -10433,11 +9564,11 @@
     {
      "source": "main",
      "start": [
-      52,
+      51,
       16
      ],
      "end": [
-      52,
+      51,
       30
      ],
      "mark": "circle"
@@ -10449,7 +9580,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -10492,7 +9623,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -10523,7 +9654,309 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 52,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@6",
+    "o5@6",
+    "o7@6",
+    "o13@8",
+    "o17@8",
+    "o23@0",
+    "o21@0",
+    "o22@1",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@7",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      52,
+      20
+     ],
+     "end": [
+      52,
+      36
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "Next item: `child` = `Value(data=0.8799999999999999, grad=0.0…`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 56,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f12",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@6",
+    "o5@6",
+    "o7@6",
+    "o13@8",
+    "o17@8",
+    "o23@0",
+    "o21@0",
+    "o22@1",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@7",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "call",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      53,
+      20
+     ],
+     "end": [
+      53,
+      37
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `Value.backward.<locals>.build_topo(v=Value(data=0.879999…)`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 56,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f12",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
      "locals": [
       [
        "v",
@@ -10560,7 +9993,377 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
+     "line": 50,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@6",
+    "o5@6",
+    "o7@6",
+    "o13@8",
+    "o17@8",
+    "o23@0",
+    "o21@0",
+    "o22@1",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@7",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      50,
+      15
+     ],
+     "end": [
+      50,
+      31
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`v not in visited` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 56,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f12",
+     "name": "Value.backward.<locals>.build_topo",
      "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f13",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 51,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@6",
+    "o5@6",
+    "o7@6",
+    "o13@8",
+    "o17@8",
+    "o23@0",
+    "o21@0",
+    "o22@1",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@7",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      51,
+      16
+     ],
+     "end": [
+      51,
+      30
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`visited` is updated to `{Value(data=0.8799999999999999, grad=0.…`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 56,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f12",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f13",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 52,
      "locals": [
       [
        "v",
@@ -10618,11 +10421,11 @@
     {
      "source": "main",
      "start": [
-      53,
+      52,
       20
      ],
      "end": [
-      53,
+      52,
       36
      ],
      "mark": "underline"
@@ -10634,7 +10437,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -10677,7 +10480,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -10708,7 +10511,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -10745,7 +10548,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -10809,11 +10612,11 @@
     {
      "source": "main",
      "start": [
-      54,
+      53,
       20
      ],
      "end": [
-      54,
+      53,
       37
      ],
      "mark": "circle"
@@ -10825,7 +10628,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -10868,7 +10671,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -10899,7 +10702,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -10936,7 +10739,229 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o9"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f14",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 50,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o9"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@6",
+    "o5@6",
+    "o7@6",
+    "o13@8",
+    "o17@8",
+    "o23@0",
+    "o21@0",
+    "o22@2",
+    "o9@7",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      50,
+      15
+     ],
+     "end": [
+      50,
+      31
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`v not in visited` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 56,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f12",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f13",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
      "locals": [
       [
        "v",
@@ -11032,232 +11057,10 @@
      "source": "main",
      "start": [
       51,
-      15
-     ],
-     "end": [
-      51,
-      31
-     ],
-     "mark": "underline"
-    }
-   ],
-   "caption": "`v not in visited` is true, so the indented block runs.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 57,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f12",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f13",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o9"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f14",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 52,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o9"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@6",
-    "o13@8",
-    "o17@8",
-    "o23@0",
-    "o21@0",
-    "o22@2",
-    "o9@7",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      52,
       16
      ],
      "end": [
-      52,
+      51,
       30
      ],
      "mark": "circle"
@@ -11269,7 +11072,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -11312,7 +11115,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -11343,7 +11146,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -11380,7 +11183,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -11417,7 +11220,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 53,
+     "line": 52,
      "locals": [
       [
        "v",
@@ -11475,11 +11278,11 @@
     {
      "source": "main",
      "start": [
-      53,
+      52,
       20
      ],
      "end": [
-      53,
+      52,
       36
      ],
      "mark": "underline"
@@ -11491,7 +11294,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -11534,7 +11337,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -11565,7 +11368,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -11602,7 +11405,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -11639,7 +11442,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -11703,11 +11506,11 @@
     {
      "source": "main",
      "start": [
-      54,
+      53,
       20
      ],
      "end": [
-      54,
+      53,
       37
      ],
      "mark": "circle"
@@ -11719,7 +11522,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -11762,7 +11565,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -11793,7 +11596,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -11830,7 +11633,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -11867,7 +11670,266 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o9"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f15",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 50,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@6",
+    "o5@6",
+    "o7@6",
+    "o13@8",
+    "o17@8",
+    "o23@0",
+    "o21@0",
+    "o22@3",
+    "o9@7",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      50,
+      15
+     ],
+     "end": [
+      50,
+      31
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`v not in visited` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 56,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f12",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f13",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o9"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f14",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
      "locals": [
       [
        "v",
@@ -11963,22 +12025,22 @@
      "source": "main",
      "start": [
       51,
-      15
+      16
      ],
      "end": [
       51,
-      31
+      30
      ],
-     "mark": "underline"
+     "mark": "circle"
     }
    ],
-   "caption": "`v not in visited` is true, so the indented block runs.",
+   "caption": "`visited` is updated to `{Value(data=2.0, grad=0.0, _backward=fu…`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -12021,7 +12083,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -12052,7 +12114,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -12089,7 +12151,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -12126,7 +12188,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -12201,265 +12263,6 @@
     "o17@8",
     "o23@0",
     "o21@0",
-    "o22@3",
-    "o9@7",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      52,
-      16
-     ],
-     "end": [
-      52,
-      30
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "`visited` is updated to `{Value(data=2.0, grad=0.0, _backward=fu…`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 57,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f12",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f13",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o9"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f14",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o9"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f15",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 53,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@6",
-    "o13@8",
-    "o17@8",
-    "o23@0",
-    "o21@0",
     "o22@4",
     "o9@7",
     "o4@0",
@@ -12480,11 +12283,11 @@
     {
      "source": "main",
      "start": [
-      53,
+      52,
       20
      ],
      "end": [
-      53,
+      52,
       36
      ],
      "mark": "underline"
@@ -12496,7 +12299,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -12539,7 +12342,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -12570,7 +12373,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -12607,7 +12410,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -12644,7 +12447,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -12681,7 +12484,7 @@
     {
      "id": "f15",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -12739,11 +12542,11 @@
     {
      "source": "main",
      "start": [
-      55,
+      54,
       16
      ],
      "end": [
-      55,
+      54,
       30
      ],
      "mark": "circle"
@@ -12755,7 +12558,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -12798,7 +12601,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -12829,7 +12632,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -12866,7 +12669,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -12903,7 +12706,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -12940,7 +12743,7 @@
     {
      "id": "f15",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -13002,11 +12805,11 @@
     {
      "source": "main",
      "start": [
-      54,
+      53,
       20
      ],
      "end": [
-      54,
+      53,
       37
      ],
      "mark": "circle"
@@ -13018,7 +12821,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -13061,7 +12864,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -13092,7 +12895,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -13129,7 +12932,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -13166,7 +12969,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 53,
+     "line": 52,
      "locals": [
       [
        "v",
@@ -13230,11 +13033,11 @@
     {
      "source": "main",
      "start": [
-      53,
+      52,
       20
      ],
      "end": [
-      53,
+      52,
       36
      ],
      "mark": "underline"
@@ -13246,7 +13049,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -13289,7 +13092,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -13320,7 +13123,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -13357,7 +13160,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -13394,7 +13197,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -13458,11 +13261,11 @@
     {
      "source": "main",
      "start": [
-      54,
+      53,
       20
      ],
      "end": [
-      54,
+      53,
       37
      ],
      "mark": "circle"
@@ -13474,7 +13277,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -13517,7 +13320,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -13548,7 +13351,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -13585,7 +13388,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -13622,7 +13425,266 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o9"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f16",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 50,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@6",
+    "o5@6",
+    "o7@6",
+    "o13@8",
+    "o17@8",
+    "o23@0",
+    "o21@1",
+    "o22@4",
+    "o9@7",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      50,
+      15
+     ],
+     "end": [
+      50,
+      31
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`v not in visited` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 56,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f12",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f13",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o9"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f14",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
      "locals": [
       [
        "v",
@@ -13718,22 +13780,22 @@
      "source": "main",
      "start": [
       51,
-      15
+      16
      ],
      "end": [
       51,
-      31
+      30
      ],
-     "mark": "underline"
+     "mark": "circle"
     }
    ],
-   "caption": "`v not in visited` is true, so the indented block runs.",
+   "caption": "`visited` is updated to `{Value(data=2.0, grad=0.0, _backward=fu…`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -13776,7 +13838,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -13807,7 +13869,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -13844,7 +13906,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -13881,7 +13943,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -13956,265 +14018,6 @@
     "o17@8",
     "o23@0",
     "o21@1",
-    "o22@4",
-    "o9@7",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      52,
-      16
-     ],
-     "end": [
-      52,
-      30
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "`visited` is updated to `{Value(data=2.0, grad=0.0, _backward=fu…`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 57,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f12",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f13",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o9"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f14",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o9"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f16",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 53,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@6",
-    "o13@8",
-    "o17@8",
-    "o23@0",
-    "o21@1",
     "o22@5",
     "o9@7",
     "o4@0",
@@ -14235,11 +14038,11 @@
     {
      "source": "main",
      "start": [
-      53,
+      52,
       20
      ],
      "end": [
-      53,
+      52,
       36
      ],
      "mark": "underline"
@@ -14251,7 +14054,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -14294,7 +14097,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -14325,7 +14128,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -14362,7 +14165,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -14399,7 +14202,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -14436,7 +14239,7 @@
     {
      "id": "f16",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -14494,11 +14297,11 @@
     {
      "source": "main",
      "start": [
-      55,
+      54,
       16
      ],
      "end": [
-      55,
+      54,
       30
      ],
      "mark": "circle"
@@ -14510,7 +14313,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -14553,7 +14356,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -14584,7 +14387,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -14621,7 +14424,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -14658,7 +14461,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -14695,7 +14498,7 @@
     {
      "id": "f16",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -14757,11 +14560,11 @@
     {
      "source": "main",
      "start": [
-      54,
+      53,
       20
      ],
      "end": [
-      54,
+      53,
       37
      ],
      "mark": "circle"
@@ -14773,7 +14576,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -14816,7 +14619,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -14847,7 +14650,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -14884,7 +14687,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -14921,7 +14724,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 53,
+     "line": 52,
      "locals": [
       [
        "v",
@@ -14985,11 +14788,11 @@
     {
      "source": "main",
      "start": [
-      53,
+      52,
       20
      ],
      "end": [
-      53,
+      52,
       36
      ],
      "mark": "underline"
@@ -15001,7 +14804,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -15044,7 +14847,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -15075,7 +14878,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -15112,7 +14915,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -15149,7 +14952,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -15213,11 +15016,11 @@
     {
      "source": "main",
      "start": [
-      55,
+      54,
       16
      ],
      "end": [
-      55,
+      54,
       30
      ],
      "mark": "circle"
@@ -15229,7 +15032,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -15272,7 +15075,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -15303,7 +15106,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -15340,7 +15143,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -15377,7 +15180,7 @@
     {
      "id": "f14",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -15445,11 +15248,11 @@
     {
      "source": "main",
      "start": [
-      54,
+      53,
       20
      ],
      "end": [
-      54,
+      53,
       37
      ],
      "mark": "circle"
@@ -15461,7 +15264,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -15504,7 +15307,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -15535,7 +15338,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -15572,7 +15375,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 53,
+     "line": 52,
      "locals": [
       [
        "v",
@@ -15636,11 +15439,11 @@
     {
      "source": "main",
      "start": [
-      53,
+      52,
       20
      ],
      "end": [
-      53,
+      52,
       36
      ],
      "mark": "underline"
@@ -15652,7 +15455,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -15695,7 +15498,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -15726,7 +15529,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -15763,7 +15566,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -15827,11 +15630,11 @@
     {
      "source": "main",
      "start": [
-      54,
+      53,
       20
      ],
      "end": [
-      54,
+      53,
       37
      ],
      "mark": "circle"
@@ -15843,7 +15646,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -15886,7 +15689,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -15917,7 +15720,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -15954,7 +15757,229 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f17",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 50,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@6",
+    "o5@6",
+    "o7@6",
+    "o13@8",
+    "o17@8",
+    "o23@0",
+    "o21@3",
+    "o22@5",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@7",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      50,
+      15
+     ],
+     "end": [
+      50,
+      31
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`v not in visited` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 56,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f12",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
+     "locals": [
+      [
+       "v",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "child",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f13",
+     "name": "Value.backward.<locals>.build_topo",
+     "line": 53,
      "locals": [
       [
        "v",
@@ -16050,22 +16075,22 @@
      "source": "main",
      "start": [
       51,
-      15
+      16
      ],
      "end": [
       51,
-      31
+      30
      ],
-     "mark": "underline"
+     "mark": "circle"
     }
    ],
-   "caption": "`v not in visited` is true, so the indented block runs.",
+   "caption": "`visited` is updated to `{Value(data=2.0, grad=0.0, _backward=fu…`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -16108,7 +16133,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -16139,7 +16164,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -16176,7 +16201,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -16251,228 +16276,6 @@
     "o17@8",
     "o23@0",
     "o21@3",
-    "o22@5",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@7",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      52,
-      16
-     ],
-     "end": [
-      52,
-      30
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "`visited` is updated to `{Value(data=2.0, grad=0.0, _backward=fu…`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 57,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f12",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f13",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "child",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f17",
-     "name": "Value.backward.<locals>.build_topo",
-     "line": 53,
-     "locals": [
-      [
-       "v",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@6",
-    "o13@8",
-    "o17@8",
-    "o23@0",
-    "o21@3",
     "o22@6",
     "o4@0",
     "o3@0",
@@ -16493,11 +16296,11 @@
     {
      "source": "main",
      "start": [
-      53,
+      52,
       20
      ],
      "end": [
-      53,
+      52,
       36
      ],
      "mark": "underline"
@@ -16509,7 +16312,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -16552,7 +16355,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -16583,7 +16386,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -16620,7 +16423,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -16657,7 +16460,7 @@
     {
      "id": "f17",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -16715,11 +16518,11 @@
     {
      "source": "main",
      "start": [
-      55,
+      54,
       16
      ],
      "end": [
-      55,
+      54,
       30
      ],
      "mark": "circle"
@@ -16731,7 +16534,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -16774,7 +16577,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -16805,7 +16608,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -16842,7 +16645,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -16879,7 +16682,7 @@
     {
      "id": "f17",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -16941,11 +16744,11 @@
     {
      "source": "main",
      "start": [
-      54,
+      53,
       20
      ],
      "end": [
-      54,
+      53,
       37
      ],
      "mark": "circle"
@@ -16957,7 +16760,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -17000,7 +16803,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -17031,7 +16834,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -17068,7 +16871,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 53,
+     "line": 52,
      "locals": [
       [
        "v",
@@ -17132,11 +16935,11 @@
     {
      "source": "main",
      "start": [
-      53,
+      52,
       20
      ],
      "end": [
-      53,
+      52,
       36
      ],
      "mark": "underline"
@@ -17148,7 +16951,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -17191,7 +16994,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -17222,7 +17025,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -17259,7 +17062,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -17323,11 +17126,11 @@
     {
      "source": "main",
      "start": [
-      55,
+      54,
       16
      ],
      "end": [
-      55,
+      54,
       30
      ],
      "mark": "circle"
@@ -17339,7 +17142,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -17382,7 +17185,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -17413,7 +17216,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 54,
+     "line": 53,
      "locals": [
       [
        "v",
@@ -17450,7 +17253,7 @@
     {
      "id": "f13",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -17518,11 +17321,11 @@
     {
      "source": "main",
      "start": [
-      54,
+      53,
       20
      ],
      "end": [
-      54,
+      53,
       37
      ],
      "mark": "circle"
@@ -17534,7 +17337,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -17577,7 +17380,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -17608,7 +17411,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 53,
+     "line": 52,
      "locals": [
       [
        "v",
@@ -17672,11 +17475,11 @@
     {
      "source": "main",
      "start": [
-      53,
+      52,
       20
      ],
      "end": [
-      53,
+      52,
       36
      ],
      "mark": "underline"
@@ -17688,7 +17491,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -17731,7 +17534,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -17762,7 +17565,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -17826,11 +17629,11 @@
     {
      "source": "main",
      "start": [
-      55,
+      54,
       16
      ],
      "end": [
-      55,
+      54,
       30
      ],
      "mark": "circle"
@@ -17842,7 +17645,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -17885,7 +17688,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 57,
+     "line": 56,
      "locals": [
       [
        "self",
@@ -17916,7 +17719,7 @@
     {
      "id": "f12",
      "name": "Value.backward.<locals>.build_topo",
-     "line": 55,
+     "line": 54,
      "locals": [
       [
        "v",
@@ -17984,11 +17787,11 @@
     {
      "source": "main",
      "start": [
-      57,
+      56,
       8
      ],
      "end": [
-      57,
+      56,
       24
      ],
      "mark": "circle"
@@ -18000,7 +17803,124 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 57,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@6",
+    "o5@6",
+    "o7@6",
+    "o13@8",
+    "o17@8",
+    "o23@0",
+    "o21@6",
+    "o22@6",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@7",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      57,
+      8
+     ],
+     "end": [
+      57,
+      23
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`self.grad` becomes `1.0`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -18078,7 +17998,7 @@
     "o5@6",
     "o7@6",
     "o13@8",
-    "o17@8",
+    "o17@9",
     "o23@0",
     "o21@6",
     "o22@6",
@@ -18102,22 +18022,22 @@
      "source": "main",
      "start": [
       58,
-      8
+      12
      ],
      "end": [
       58,
-      23
+      34
      ],
-     "mark": "circle"
+     "mark": "underline"
     }
    ],
-   "caption": "`self.grad` becomes `1.0`.",
+   "caption": "Next item: `node` = `Value(data=0.8799999999999999, grad=1.0…`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -18161,123 +18081,6 @@
      "id": "f11",
      "name": "Value.backward",
      "line": 59,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@6",
-    "o13@8",
-    "o17@9",
-    "o23@0",
-    "o21@6",
-    "o22@6",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@7",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      59,
-      12
-     ],
-     "end": [
-      59,
-      34
-     ],
-     "mark": "underline"
-    }
-   ],
-   "caption": "Next item: `node` = `Value(data=0.7064193203972353, grad=1.0…`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 60,
      "locals": [
       [
        "self",
@@ -18341,23 +18144,23 @@
     {
      "source": "main",
      "start": [
-      60,
+      59,
       12
      ],
      "end": [
-      60,
+      59,
       28
      ],
      "mark": "circle"
     }
    ],
-   "caption": "Call `Value.tanh.<locals>._backward()`.",
+   "caption": "Call `Value.relu.<locals>._backward()`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -18400,7 +18203,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -18436,8 +18239,8 @@
     },
     {
      "id": "f18",
-     "name": "Value.tanh.<locals>._backward",
-     "line": 41,
+     "name": "Value.relu.<locals>._backward",
+     "line": 40,
      "locals": [
       [
        "out",
@@ -18449,13 +18252,6 @@
        "self",
        {
         "ref": "o13"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ]
@@ -18490,23 +18286,23 @@
     {
      "source": "main",
      "start": [
-      41,
+      40,
       12
      ],
      "end": [
-      41,
-      46
+      40,
+      50
      ],
      "mark": "circle"
     }
    ],
-   "caption": "`self.grad` becomes `0.5009717437695083`.",
+   "caption": "`self.grad` becomes `1.0`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -18549,7 +18345,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -18585,8 +18381,8 @@
     },
     {
      "id": "f18",
-     "name": "Value.tanh.<locals>._backward",
-     "line": 41,
+     "name": "Value.relu.<locals>._backward",
+     "line": 40,
      "locals": [
       [
        "out",
@@ -18598,13 +18394,6 @@
        "self",
        {
         "ref": "o13"
-       }
-      ],
-      [
-       "t",
-       {
-        "p": "0.7064193203972353",
-        "t": "float"
        }
       ]
      ],
@@ -18643,23 +18432,23 @@
     {
      "source": "main",
      "start": [
-      60,
+      59,
       12
      ],
      "end": [
-      60,
+      59,
       28
      ],
      "mark": "circle"
     }
    ],
-   "caption": "Back in `Value.backward`: `Value.tanh.<locals>._backward` returned `None`.",
+   "caption": "Back in `Value.backward`: `Value.relu.<locals>._backward` returned `None`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -18702,7 +18491,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 59,
+     "line": 58,
      "locals": [
       [
        "self",
@@ -18766,23 +18555,23 @@
     {
      "source": "main",
      "start": [
-      59,
+      58,
       12
      ],
      "end": [
-      59,
+      58,
       34
      ],
      "mark": "underline"
     }
    ],
-   "caption": "Next item: `node` = `Value(data=0.8799999999999999, grad=0.5…`.",
+   "caption": "Next item: `node` = `Value(data=0.8799999999999999, grad=1.0…`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -18825,7 +18614,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -18889,11 +18678,11 @@
     {
      "source": "main",
      "start": [
-      60,
+      59,
       12
      ],
      "end": [
-      60,
+      59,
       28
      ],
      "mark": "circle"
@@ -18905,7 +18694,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -18948,7 +18737,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -19047,13 +18836,13 @@
      "mark": "circle"
     }
    ],
-   "caption": "`self.grad` becomes `0.5009717437695083`.",
+   "caption": "`self.grad` becomes `1.0`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -19096,7 +18885,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -19195,13 +18984,13 @@
      "mark": "circle"
     }
    ],
-   "caption": "`other.grad` becomes `0.5009717437695083`.",
+   "caption": "`other.grad` becomes `1.0`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -19244,7 +19033,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -19337,11 +19126,11 @@
     {
      "source": "main",
      "start": [
-      60,
+      59,
       12
      ],
      "end": [
-      60,
+      59,
       28
      ],
      "mark": "circle"
@@ -19353,7 +19142,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -19396,7 +19185,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 59,
+     "line": 58,
      "locals": [
       [
        "self",
@@ -19460,23 +19249,23 @@
     {
      "source": "main",
      "start": [
-      59,
+      58,
       12
      ],
      "end": [
-      59,
+      58,
       34
      ],
      "mark": "underline"
     }
    ],
-   "caption": "Next item: `node` = `Value(data=6.88, grad=0.500971743769508…`.",
+   "caption": "Next item: `node` = `Value(data=6.88, grad=1.0, _backward=fu…`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -19519,7 +19308,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -19583,11 +19372,11 @@
     {
      "source": "main",
      "start": [
-      60,
+      59,
       12
      ],
      "end": [
-      60,
+      59,
       28
      ],
      "mark": "circle"
@@ -19599,7 +19388,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -19642,7 +19431,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -19728,140 +19517,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 60,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "node",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f20",
-     "name": "Value.__init__.<locals>.<lambda>",
-     "line": 11,
-     "locals": [],
-     "returnValue": {
-      "p": "None",
-      "t": "None"
-     }
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@6",
-    "o5@6",
-    "o7@7",
-    "o13@9",
-    "o17@9",
-    "o23@0",
-    "o21@6",
-    "o22@6",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@8",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      60,
-      12
-     ],
-     "end": [
-      60,
-      28
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "Back in `Value.backward`: `Value.__init__.<locals>.<lambda>` returned `None`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -19937,6 +19593,16 @@
        }
       ]
      ]
+    },
+    {
+     "id": "f20",
+     "name": "Value.__init__.<locals>.<lambda>",
+     "line": 11,
+     "locals": [],
+     "returnValue": {
+      "p": "None",
+      "t": "None"
+     }
     }
    ],
    "heap": [
@@ -19973,18 +19639,18 @@
      ],
      "end": [
       59,
-      34
+      28
      ],
-     "mark": "underline"
+     "mark": "circle"
     }
    ],
-   "caption": "Next item: `node` = `Value(data=-6.0, grad=0.500971743769508…`.",
+   "caption": "Back in `Value.backward`: `Value.__init__.<locals>.<lambda>` returned `None`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -20027,7 +19693,130 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 58,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "node",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@6",
+    "o5@6",
+    "o7@7",
+    "o13@9",
+    "o17@9",
+    "o23@0",
+    "o21@6",
+    "o22@6",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@8",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      58,
+      12
+     ],
+     "end": [
+      58,
+      34
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "Next item: `node` = `Value(data=-6.0, grad=1.0, _backward=fu…`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 59,
      "locals": [
       [
        "self",
@@ -20091,11 +19880,11 @@
     {
      "source": "main",
      "start": [
-      60,
+      59,
       12
      ],
      "end": [
-      60,
+      59,
       28
      ],
      "mark": "circle"
@@ -20107,7 +19896,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -20150,7 +19939,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -20249,13 +20038,13 @@
      "mark": "circle"
     }
    ],
-   "caption": "`self.grad` becomes `-1.5029152313085248`.",
+   "caption": "`self.grad` becomes `-3.0`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -20298,7 +20087,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -20397,13 +20186,13 @@
      "mark": "circle"
     }
    ],
-   "caption": "`other.grad` becomes `1.0019434875390165`.",
+   "caption": "`other.grad` becomes `2.0`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -20446,7 +20235,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -20539,11 +20328,11 @@
     {
      "source": "main",
      "start": [
-      60,
+      59,
       12
      ],
      "end": [
-      60,
+      59,
       28
      ],
      "mark": "circle"
@@ -20555,7 +20344,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -20598,7 +20387,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 59,
+     "line": 58,
      "locals": [
       [
        "self",
@@ -20662,408 +20451,23 @@
     {
      "source": "main",
      "start": [
-      59,
+      58,
       12
      ],
      "end": [
-      59,
+      58,
       34
      ],
      "mark": "underline"
     }
    ],
-   "caption": "Next item: `node` = `Value(data=-3.0, grad=1.001943487539016…`.",
+   "caption": "Next item: `node` = `Value(data=-3.0, grad=2.0, _backward=fu…`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 60,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "node",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@7",
-    "o5@7",
-    "o7@7",
-    "o13@9",
-    "o17@9",
-    "o23@0",
-    "o21@6",
-    "o22@6",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@8",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "call",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      60,
-      12
-     ],
-     "end": [
-      60,
-      28
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "Call `Value.__init__.<locals>.<lambda>()`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 60,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "node",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f22",
-     "name": "Value.__init__.<locals>.<lambda>",
-     "line": 11,
-     "locals": []
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@7",
-    "o5@7",
-    "o7@7",
-    "o13@9",
-    "o17@9",
-    "o23@0",
-    "o21@6",
-    "o22@6",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@8",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "return",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      11,
-      33
-     ],
-     "end": [
-      11,
-      37
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "`Value.__init__.<locals>.<lambda>` returns `None`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 60,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "node",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f22",
-     "name": "Value.__init__.<locals>.<lambda>",
-     "line": 11,
-     "locals": [],
-     "returnValue": {
-      "p": "None",
-      "t": "None"
-     }
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@7",
-    "o5@7",
-    "o7@7",
-    "o13@9",
-    "o17@9",
-    "o23@0",
-    "o21@6",
-    "o22@6",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@8",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      60,
-      12
-     ],
-     "end": [
-      60,
-      28
-     ],
-     "mark": "circle"
-    }
-   ],
-   "caption": "Back in `Value.backward`: `Value.__init__.<locals>.<lambda>` returned `None`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -21165,139 +20569,16 @@
    ]
   },
   {
-   "kind": "statement",
-   "focus": [
-    {
-     "source": "main",
-     "start": [
-      59,
-      12
-     ],
-     "end": [
-      59,
-      34
-     ],
-     "mark": "underline"
-    }
-   ],
-   "caption": "Next item: `node` = `Value(data=2.0, grad=-1.502915231308524…`.",
-   "captionOrigin": "template",
-   "stack": [
-    {
-     "id": "f1",
-     "name": "Global",
-     "line": 70,
-     "locals": [
-      [
-       "Value",
-       {
-        "ref": "o1"
-       }
-      ],
-      [
-       "x",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "w",
-       {
-        "ref": "o5"
-       }
-      ],
-      [
-       "b",
-       {
-        "ref": "o7"
-       }
-      ],
-      [
-       "n",
-       {
-        "ref": "o13"
-       }
-      ],
-      [
-       "o",
-       {
-        "ref": "o17"
-       }
-      ]
-     ]
-    },
-    {
-     "id": "f11",
-     "name": "Value.backward",
-     "line": 60,
-     "locals": [
-      [
-       "self",
-       {
-        "ref": "o17"
-       }
-      ],
-      [
-       "node",
-       {
-        "ref": "o2"
-       }
-      ],
-      [
-       "build_topo",
-       {
-        "ref": "o23"
-       }
-      ],
-      [
-       "topo",
-       {
-        "ref": "o21"
-       }
-      ],
-      [
-       "visited",
-       {
-        "ref": "o22"
-       }
-      ]
-     ]
-    }
-   ],
-   "heap": [
-    "o1@0",
-    "o2@7",
-    "o5@7",
-    "o7@7",
-    "o13@9",
-    "o17@9",
-    "o23@0",
-    "o21@6",
-    "o22@6",
-    "o4@0",
-    "o3@0",
-    "o6@0",
-    "o8@0",
-    "o16@0",
-    "o14@0",
-    "o20@0",
-    "o18@0",
-    "o9@8",
-    "o12@0",
-    "o10@0"
-   ]
-  },
-  {
    "kind": "call",
    "focus": [
     {
      "source": "main",
      "start": [
-      60,
+      59,
       12
      ],
      "end": [
-      60,
+      59,
       28
      ],
      "mark": "circle"
@@ -21309,7 +20590,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -21352,7 +20633,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -21363,7 +20644,7 @@
       [
        "node",
        {
-        "ref": "o2"
+        "ref": "o5"
        }
       ],
       [
@@ -21387,7 +20668,7 @@
      ]
     },
     {
-     "id": "f23",
+     "id": "f22",
      "name": "Value.__init__.<locals>.<lambda>",
      "line": 11,
      "locals": []
@@ -21438,7 +20719,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -21481,7 +20762,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 60,
+     "line": 59,
      "locals": [
       [
        "self",
@@ -21492,7 +20773,7 @@
       [
        "node",
        {
-        "ref": "o2"
+        "ref": "o5"
        }
       ],
       [
@@ -21516,7 +20797,7 @@
      ]
     },
     {
-     "id": "f23",
+     "id": "f22",
      "name": "Value.__init__.<locals>.<lambda>",
      "line": 11,
      "locals": [],
@@ -21555,11 +20836,11 @@
     {
      "source": "main",
      "start": [
-      60,
+      59,
       12
      ],
      "end": [
-      60,
+      59,
       28
      ],
      "mark": "circle"
@@ -21571,7 +20852,130 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 58,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "node",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@7",
+    "o5@7",
+    "o7@7",
+    "o13@9",
+    "o17@9",
+    "o23@0",
+    "o21@6",
+    "o22@6",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@8",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      58,
+      12
+     ],
+     "end": [
+      58,
+      34
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "Next item: `node` = `Value(data=2.0, grad=-3.0, _backward=fu…`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -21673,7 +21077,7 @@
    ]
   },
   {
-   "kind": "return",
+   "kind": "call",
    "focus": [
     {
      "source": "main",
@@ -21683,6 +21087,391 @@
      ],
      "end": [
       59,
+      28
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `Value.__init__.<locals>.<lambda>()`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 59,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "node",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f23",
+     "name": "Value.__init__.<locals>.<lambda>",
+     "line": 11,
+     "locals": []
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@7",
+    "o5@7",
+    "o7@7",
+    "o13@9",
+    "o17@9",
+    "o23@0",
+    "o21@6",
+    "o22@6",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@8",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      11,
+      33
+     ],
+     "end": [
+      11,
+      37
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`Value.__init__.<locals>.<lambda>` returns `None`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 59,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "node",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f23",
+     "name": "Value.__init__.<locals>.<lambda>",
+     "line": 11,
+     "locals": [],
+     "returnValue": {
+      "p": "None",
+      "t": "None"
+     }
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@7",
+    "o5@7",
+    "o7@7",
+    "o13@9",
+    "o17@9",
+    "o23@0",
+    "o21@6",
+    "o22@6",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@8",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      59,
+      12
+     ],
+     "end": [
+      59,
+      28
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Back in `Value.backward`: `Value.__init__.<locals>.<lambda>` returned `None`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 69,
+     "locals": [
+      [
+       "Value",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "x",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "w",
+       {
+        "ref": "o5"
+       }
+      ],
+      [
+       "b",
+       {
+        "ref": "o7"
+       }
+      ],
+      [
+       "n",
+       {
+        "ref": "o13"
+       }
+      ],
+      [
+       "o",
+       {
+        "ref": "o17"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f11",
+     "name": "Value.backward",
+     "line": 58,
+     "locals": [
+      [
+       "self",
+       {
+        "ref": "o17"
+       }
+      ],
+      [
+       "node",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "build_topo",
+       {
+        "ref": "o23"
+       }
+      ],
+      [
+       "topo",
+       {
+        "ref": "o21"
+       }
+      ],
+      [
+       "visited",
+       {
+        "ref": "o22"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@7",
+    "o5@7",
+    "o7@7",
+    "o13@9",
+    "o17@9",
+    "o23@0",
+    "o21@6",
+    "o22@6",
+    "o4@0",
+    "o3@0",
+    "o6@0",
+    "o8@0",
+    "o16@0",
+    "o14@0",
+    "o20@0",
+    "o18@0",
+    "o9@8",
+    "o12@0",
+    "o10@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      58,
+      12
+     ],
+     "end": [
+      58,
       34
      ],
      "mark": "underline"
@@ -21694,7 +21483,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 70,
+     "line": 69,
      "locals": [
       [
        "Value",
@@ -21737,7 +21526,7 @@
     {
      "id": "f11",
      "name": "Value.backward",
-     "line": 59,
+     "line": 58,
      "locals": [
       [
        "self",
@@ -21805,11 +21594,11 @@
     {
      "source": "main",
      "start": [
-      70,
+      69,
       0
      ],
      "end": [
-      70,
+      69,
       12
      ],
      "mark": "circle"
@@ -21821,7 +21610,7 @@
     {
      "id": "f1",
      "name": "Global",
-     "line": 71,
+     "line": 70,
      "locals": [
       [
        "Value",
@@ -21888,23 +21677,23 @@
     {
      "source": "main",
      "start": [
-      71,
+      70,
       0
      ],
      "end": [
-      71,
+      70,
       41
      ],
      "mark": "circle"
     }
    ],
-   "caption": "Print `-1.5029 1.0019`.",
+   "caption": "Print `-3.0 2.0`.",
    "captionOrigin": "template",
    "stack": [
     {
      "id": "f1",
      "name": "Global",
-     "line": 71,
+     "line": 70,
      "locals": [
       [
        "Value",
@@ -21964,7 +21753,7 @@
     "o12@0",
     "o10@0"
    ],
-   "stdout": "-1.5029 1.0019\n"
+   "stdout": "-3.0 2.0\n"
   }
  ]
 }

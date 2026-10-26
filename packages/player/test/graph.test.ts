@@ -59,10 +59,7 @@ describe('ObjectGraph', () => {
     const o = byTitle.get('o')!;
     expect(o.rows.map(([k]) => k)).toEqual(['data', 'grad', '_op']);
     expect(o.rows.find(([k]) => k === 'grad')![1]).toBe('1.0');
-    expect(byTitle.get('x')!.rows.map(([k, v]) => `${k}=${v}`)).toEqual([
-      'data=2.0',
-      'grad=-1.503',
-    ]);
+    expect(byTitle.get('x')!.rows.map(([k, v]) => `${k}=${v}`)).toEqual(['data=2.0', 'grad=-3.0']);
     // Inputs sit left of what they feed; nodes never move between steps.
     const box = (t: string) => graph.boxes.get(byTitle.get(t)!.id)!;
     expect(box('x').x).toBeLessThan(box('n').x);

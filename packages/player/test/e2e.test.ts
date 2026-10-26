@@ -178,7 +178,7 @@ describe('player in a browser', () => {
     });
     expect(view.nodes).toBe(6);
     expect(view.edges).toBe(5);
-    expect(view.changed).toEqual(['grad=0.501']);
+    expect(view.changed).toEqual(['grad=1.0']);
     expect(view.inside).toBe(true);
     expect(errors).toEqual([]);
     await page.close();
