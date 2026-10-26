@@ -15,11 +15,11 @@ permissions:
 jobs:
   player:
     name: Player (TypeScript)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -29,7 +29,7 @@ jobs:
       - run: pnpm build
       - run: pnpm --filter @visset/player exec playwright install --with-deps chromium
       - run: pnpm test
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: player-bundle
           path: python/src/visset/_assets/player.js
@@ -42,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04]
         python: ["3.12", "3.13", "3.14"]
         include:
           - os: macos-latest
@@ -51,12 +51,12 @@ jobs:
       run:
         working-directory: python
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           name: player-bundle
           path: python/src/visset/_assets
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v10.3.2
         with:
           python-version: ${{ matrix.python }}
       - run: uv sync --locked
@@ -65,7 +65,7 @@ jobs:
       - run: uv run mypy
       - run: uv run pytest
       - name: Build wheel and smoke-test the installed CLI
-        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.13'
+        if: matrix.os == 'ubuntu-24.04' && matrix.python == '3.13'
         run: |
           uv build
           python -m venv /tmp/wheel-env
