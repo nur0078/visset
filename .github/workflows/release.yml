@@ -1,0 +1,69 @@
+name: Release
+
+# Publishing a GitHub release tagged vX.Y.Z builds the package and uploads it to PyPI.
+# Upload uses PyPI Trusted Publishing (OpenID Connect): no API token is stored anywhere.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build # the player bundle goes inside the wheel
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+      - name: Tag must match the package version
+        working-directory: python
+        run: |
+          version=$(uv run --no-project python -c "import re; print(re.search(r'\"(.+)\"', open('src/visset/_version.py').read()).group(1))")
+          echo "package version: $version, tag: $GITHUB_REF_NAME"
+          test "v$version" = "$GITHUB_REF_NAME"
+      - name: Tests
+        working-directory: python
+        run: |
+          uv sync --locked
+          uv run pytest -q
+      - name: Build sdist and wheel
+        working-directory: python
+        run: uv build
+      - name: Wheel must contain the player and install cleanly
+        working-directory: python
+        run: |
+          unzip -l dist/*.whl | grep -q "visset/_assets/player.js"
+          python -m venv /tmp/check && /tmp/check/bin/pip install -q dist/*.whl
+          /tmp/check/bin/visset run ../examples/bsearch.py -o /tmp/check.html
+          grep -q "visset-player" /tmp/check.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: python/dist/
+          if-no-files-found: error
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/visset
+    permissions:
+      id-token: write # lets PyPI verify this job via OpenID Connect
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
