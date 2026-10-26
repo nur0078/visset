@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.1
 
 - Player: objects that point at each other (linked lists, trees, autograd graphs) are drawn as
   boxes and arrows in a new Objects pane, worked out from the data's shape with no per-class code.
@@ -8,6 +8,8 @@
 - Notebooks: `visset.show(...)` plays the walkthrough under the cell in Jupyter, JupyterLab,
   VS Code and Colab instead of returning a temp file path, and `to_html(...)` displays as the
   player instead of a wall of HTML text.
+- Tracer: on Python 3.12, steps inside loops in nested functions no longer jump to the def of
+  the enclosing function.
 
 ## 0.1.0
 
