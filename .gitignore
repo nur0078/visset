@@ -1,0 +1,23 @@
+# JS
+node_modules/
+packages/*/dist/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Built player bundle, shipped inside the wheel (run `pnpm build`)
+python/src/visset/_assets/player.js
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
