@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -49,17 +49,19 @@ class TraceRequest:
     limits: Limits = field(default_factory=Limits)
     output: str | None = None  # where a sandboxed child writes the trace
     title: str | None = None
+    lines: tuple[int, int] | None = None  # view window: show only these lines (file numbering)
+    given: str = ""  # snippet inputs as keyword literals: "arr=[1, 3, 5], target=3"
 
     def to_json(self) -> dict[str, Any]:
-        out = asdict(self)
-        out["limits"] = self.limits.to_json()
         return {
             "source": {"path": self.path, "text": self.source},
             "entry": {"function": self.function, "args": self.args} if self.function else None,
             "stdin": self.stdin,
-            "limits": out["limits"],
+            "limits": self.limits.to_json(),
             "output": self.output,
             "title": self.title,
+            "view": {"lines": list(self.lines)} if self.lines else None,
+            "given": self.given,
         }
 
     @classmethod
@@ -74,4 +76,13 @@ class TraceRequest:
             limits=Limits.from_json(data.get("limits")),
             output=data.get("output"),
             title=data.get("title"),
+            lines=_lines((data.get("view") or {}).get("lines")),
+            given=data.get("given") or "",
         )
+
+
+def _lines(value: Any) -> tuple[int, int] | None:
+    if not value:
+        return None
+    first, last = value
+    return int(first), int(last)

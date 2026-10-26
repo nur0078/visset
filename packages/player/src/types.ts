@@ -61,6 +61,8 @@ export interface Source {
   id: string;
   path?: string;
   text: string;
+  /** Original line number of the first line of `text` (an excerpt); for display only. */
+  firstLine?: number;
   tokens?: [line: number, col: number, endCol: number, kind: string][];
 }
 

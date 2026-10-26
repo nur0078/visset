@@ -269,7 +269,10 @@
      ]
     }
    ],
-   "heap": []
+   "heap": [],
+   "changes": [
+    "f1.text"
+   ]
   },
   {
    "kind": "statement",

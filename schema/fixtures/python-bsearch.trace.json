@@ -242,6 +242,9 @@
    ],
    "heap": [
     "o1@0"
+   ],
+   "changes": [
+    "f1.binary_search"
    ]
   },
   {

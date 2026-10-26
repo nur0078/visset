@@ -124,6 +124,19 @@ describe('player in a browser', () => {
     await page.close();
   });
 
+  it('numbers an excerpt with its original line numbers', async () => {
+    const trace = JSON.parse(readFileSync(resolve(fixtures, 'python-fib.trace.json'), 'utf8'));
+    trace.sources[0].firstLine = 12;
+    const { page } = await open(JSON.stringify(trace));
+    const numbers = await page.evaluate(() =>
+      [...document.querySelector('visset-player')!.shadowRoot!.querySelectorAll('.ln')].map(
+        (n) => n.textContent,
+      ),
+    );
+    expect(numbers.slice(0, 3)).toEqual(['12', '13', '14']);
+    await page.close();
+  });
+
   it('escapes source text instead of injecting it as HTML', async () => {
     const trace = JSON.parse(readFileSync(resolve(fixtures, 'python-fib.trace.json'), 'utf8'));
     trace.sources[0].text = `<img src=x onerror="window.pwned=1">\n${trace.sources[0].text}`;

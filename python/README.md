@@ -5,17 +5,18 @@ the exact expression involved, and plays it back as a guided walkthrough: the co
 hand-drawn mark on what just ran, the call stack and variables beside it, and a plain-English
 caption.
 
-```bash
-visset run bsearch.py                      # trace and open in the browser
-visset run bsearch.py -o bsearch.html      # one self-contained HTML file
-visset run bsearch.py --fn binary_search --args "[1, 3, 5, 7], 5"
-```
+visset is made for a function, a snippet, or part of a function, not a whole codebase.
 
 ```python
 import visset
 
-trace = visset.trace(source, function="binary_search", args=([1, 3, 5, 7], 5))
-visset.show(trace)          # like plt.show()
+visset.show(binary_search, [1, 3, 5, 7], 5)                      # one call, like plt.show()
+visset.show("total = 0\nfor x in xs:\n    total += x", given={"xs": [4, 5]})
+```
+
+```bash
+visset run bsearch.py --fn binary_search --args "[1, 3, 5, 7], 5"
+visset run bsearch.py --lines 4-9 -o part.html      # just part of it, as one HTML file
 ```
 
 - Python 3.12+ (uses `sys.monitoring`), no runtime dependencies.

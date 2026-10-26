@@ -8,9 +8,13 @@ exact expression circled by hand and the program's state right beside it.
   <img alt="visset player: binary search, with the condition arr[mid] == target underlined, the call stack on the right, and a caption explaining the step" src="docs/images/player-light.png">
 </picture>
 
-```bash
-visset run bsearch.py            # trace it and open the walkthrough in your browser
+```python
+import visset
+visset.show(binary_search, [1, 3, 5, 7], 5)   # step through one call, like plt.show()
 ```
+
+visset explains **a function, a snippet, or part of a function**, not a whole codebase. It
+shows only the code you point it at, with its real line numbers.
 
 - **Column-precise marks.** Each step circles or underlines the exact code that ran: `i += 1`,
   `arr[mid] == target`, a loop header, a lambda body. Not just the whole line.
@@ -41,32 +45,53 @@ uv run visset run ../examples/bsearch.py
 
 ## Use it
 
+### Python
+
+```python
+import visset
+
+visset.show(binary_search, [1, 3, 5, 7], 5)        # one live call; args can be any objects
+visset.trace_call(binary_search, ([1, 3, 5, 7], 5), lines=(4, 9))   # only lines 4-9 of it
+
+snippet = """
+lo, hi = 0, len(arr) - 1
+while lo <= hi:
+    mid = (lo + hi) // 2
+    ...
+"""
+visset.show(snippet, given={"arr": [1, 3, 5, 7], "target": 5})   # a fragment with inputs
+
+trace = visset.trace(binary_search, [1, 3], 3)     # the trace as a dict (JSON-ready)
+visset.to_html(trace, "bsearch.html")
+```
+
+A live call runs in your Python process, because real objects can't cross a process boundary. Use
+it on code you trust to finish; the step and recursion limits still apply. Source snippets run in
+the sandbox.
+
 ### Command line
 
 ```bash
-visset run file.py                              # trace the whole program and open it
-visset run file.py -o walkthrough.html          # write a standalone HTML file instead
-visset run bsearch.py --fn binary_search --args "[1, 3, 5, 7], 5"   # trace one function call
-visset run greet.py --stdin "Ada"               # feed input() calls
-visset trace file.py -o file.trace.json         # the raw trace (JSON)
-visset render file.trace.json -o out.html       # trace JSON -> HTML
+visset run file.py --fn binary_search --args "[1, 3, 5, 7], 5"   # one function call
+visset run file.py --fn Stack.push --args "Stack(), 4"           # a method; args are Python
+                                                                  # expressions in the file
+visset run file.py --lines 4-9                     # part of a function (the program still runs)
+visset run snippet.py --given "arr=[1, 3, 5], target=3"           # a fragment with inputs
+visset run file.py                                 # the whole program
+visset run file.py -o walkthrough.html             # write HTML instead of opening a browser
+visset trace file.py -o file.trace.json            # the raw trace (JSON)
+visset render file.trace.json -o out.html          # trace JSON -> HTML
 ```
+
+With `--fn` the code pane shows only that function, and calls into other functions appear as
+single steps ("Call `helper(x=1)`" … "Back in `fn`: `helper` returned `2`"). With `--lines`, steps
+outside the range are hidden but still run; output they print is kept.
 
 Limits: `--max-steps` (default 10,000) and `--timeout` (default 5 s). Programs run in a separate
 process with CPU and memory limits (see [Safety](#safety)).
 
 In the player: <kbd>←</kbd> <kbd>→</kbd> step, <kbd>Space</kbd> play/pause,
 <kbd>Home</kbd> <kbd>End</kbd> jump, <kbd>[</kbd> <kbd>]</kbd> change speed.
-
-### Python
-
-```python
-import visset
-
-trace = visset.trace(open("bsearch.py").read(), function="binary_search", args=([1, 3, 5, 7], 5))
-visset.show(trace)                  # open in the browser, like plt.show()
-visset.to_html(trace, "bsearch.html")
-```
 
 ### Embed the player
 
@@ -116,7 +141,7 @@ On Windows only the time and step limits apply.
 
 | | Milestone | Status |
 |---|---|---|
-| M1 | Python tracer, schema v0.1, step-through player, HTML export | ✅ this release |
+| M1 | Python tracer, schema v0.1, step-through player, HTML export; functions, snippets and line ranges | ✅ this release |
 | M2 | Heap diagram with reference arrows, recursion stack, code-to-diagram connectors | next |
 | M3 | Hand-authored walkthroughs (YAML) | |
 | M4 | JavaScript tracer + `npx visset`: same player, second language | |

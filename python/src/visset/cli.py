@@ -11,7 +11,22 @@ from typing import Any
 
 def _add_trace_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("file", help="Python file to trace")
-    p.add_argument("--fn", metavar="NAME", help="trace only this function (module runs untraced)")
+    p.add_argument(
+        "--fn",
+        metavar="NAME",
+        help="trace one call of this function (or Class.method); shows only its source",
+    )
+    p.add_argument(
+        "--lines",
+        metavar="A-B",
+        help="show only these lines, e.g. 4-9 (part of a function); the program still runs",
+    )
+    p.add_argument(
+        "--given",
+        default="",
+        metavar="INPUTS",
+        help='inputs for a snippet, e.g. "arr=[1, 3, 5], target=3"',
+    )
     p.add_argument(
         "--args",
         default="",
@@ -66,11 +81,19 @@ def _trace(ns: argparse.Namespace) -> tuple[dict[str, Any], int]:
         source = path.read_text(encoding="utf-8")
     except OSError as e:
         raise SystemExit(f"visset: cannot read {path}: {e.strerror}") from e
+    from .tracer.window import WindowError, parse_lines
+
+    try:
+        lines = parse_lines(ns.lines) if ns.lines else None
+    except WindowError as e:
+        raise SystemExit(f"visset: {e}") from e
     req = TraceRequest(
         source=source,
         path=str(path.resolve()),
         function=ns.fn,
         args=ns.args,
+        given=ns.given,
+        lines=lines,
         stdin=ns.stdin or "",
         limits=Limits(max_steps=ns.max_steps, timeout_ms=int(ns.timeout * 1000)),
     )
@@ -81,6 +104,9 @@ def _report(trace: dict[str, Any]) -> None:
     meta = trace["meta"]
     n = len(trace["steps"])
     err = sys.stderr
+    first = trace["sources"][0].get("firstLine")
+    if n == 0 and first:
+        err.write("note: no code ran inside the selected lines.\n")
     if meta.get("error"):
         e = meta["error"]
         where = f" on line {e['line']}" if e.get("line") else ""

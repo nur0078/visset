@@ -234,6 +234,18 @@ user's code and makes closures and scoping tricky. I'll prototype CDP first and 
 </script>
 ```
 
+## 5b. Scope: functions, snippets and line ranges
+
+visset explains a function, a snippet or part of a function, not a whole codebase. Everything
+goes through one mechanism, a **view window**: the tracer records the run as usual, then keeps
+only the steps whose focus is inside the window, renumbers positions to the excerpt, and sets
+`sources[0].firstLine` so the player shows the file's real line numbers. Output printed by
+hidden steps is carried to the next visible step. The window comes from `--fn` (the
+function's definition, decorators included), `--lines A-B`, or the source of a live function
+passed to `visset.show(fn, *args)`. A snippet with `--given` inputs runs as a tiny program;
+the tracer snapshots the state before the first step, so inputs and arguments are never
+reported as changes.
+
 ## 6. CLI and Python API
 
 ```bash

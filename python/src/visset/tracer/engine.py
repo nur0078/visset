@@ -247,10 +247,22 @@ class Tracer:
             if len(self._frames) > self.limits.max_stack:
                 self._stop("maxStack", self.limits.max_stack, frame)
         state.node, state.offset = node, offset
+        if not self.steps and self._pending is None:
+            self._baseline(frame)
         self._finalize(frame, next_node=node, next_frame=frame, is_call=is_call)
         self._pending = Pending(frame, node)
         if time.perf_counter() > self._deadline:
             self._stop("timeout", self.limits.timeout_ms, frame)
+
+    def _baseline(self, frame: types.FrameType) -> None:
+        """State before the first step: a function's arguments or a snippet's inputs already
+        exist, so the first step must not report them as changes."""
+        _stack, by_fid, live = self._snapshot(frame)
+        self._prev_locals = by_fid
+        self._prev_versions = dict(vid.partition("@")[::2] for vid in live)
+        self._baseline_locals: dict[str, dict[str, Value]] | None = by_fid
+
+    _baseline_locals: dict[str, dict[str, Value]] | None = None
 
     def _register(self, frame: types.FrameType) -> FrameState:
         self._fid_count += 1
@@ -467,6 +479,17 @@ class Tracer:
         }
         if out:
             step["stdout"] = out
+        if not self.steps and self._baseline_locals is not None:
+            # The player diffs consecutive steps; the first step has nothing to diff against,
+            # so say explicitly what it changed relative to the inputs.
+            base = self._baseline_locals
+            step["changes"] = [
+                f"{fid}.{name}"
+                for fid, local in by_fid.items()
+                for name, value in local.items()
+                if base.get(fid, {}).get(name) != value
+                or ("ref" in value and value["ref"] in changed)
+            ]
         self.steps.append(step)
         self._prev_locals = by_fid
         self._prev_versions = versions

@@ -54,5 +54,5 @@ def test_user_code_cannot_see_the_parent_environment() -> None:
 
 def test_bad_args_are_a_clear_error() -> None:
     req = TraceRequest("def f(x):\n    return x\n", path="t.py", function="f", args="oops(")
-    with pytest.raises(TraceError, match="Python literals"):
+    with pytest.raises(TraceError, match="could not evaluate --args"):
         run_sandboxed(req)

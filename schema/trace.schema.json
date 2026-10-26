@@ -82,6 +82,11 @@
         "id": { "type": "string" },
         "path": { "type": "string" },
         "text": { "type": "string" },
+        "firstLine": {
+          "description": "Line number (in the original file) of the first line of `text`, when `text` is an excerpt such as one function. Positions in steps stay relative to `text`; this is for display.",
+          "type": "integer",
+          "minimum": 1
+        },
         "tokens": {
           "description": "Syntax-highlighting tokens: [line, column, endColumn, kind]. Single-line only.",
           "type": "array",

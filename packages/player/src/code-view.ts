@@ -58,7 +58,7 @@ export class CodeView {
       row.className = 'line';
       const num = document.createElement('span');
       num.className = 'ln';
-      num.textContent = String(lineNo);
+      num.textContent = String(lineNo + (source.firstLine ?? 1) - 1);
       const src = document.createElement('span');
       src.className = 'src';
       const chars = Array.from(text); // index by code point, not UTF-16 unit

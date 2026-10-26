@@ -230,7 +230,7 @@ def compact(value: Value, lookup: Any, limit: int = 40, _depth: int = 0) -> str:
     if content is None:
         return "…"
     shape = content["shape"]
-    if _depth >= 2 and shape in ("sequence", "mapping", "set", "record"):
+    if _depth >= 3 and shape in ("sequence", "mapping", "set", "record"):
         return "…"
 
     def inner(v: Value) -> str:

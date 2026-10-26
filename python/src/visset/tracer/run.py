@@ -23,6 +23,7 @@ from .engine import Capture, StopTracing, Tracer
 from .positions import SourceIndex
 from .request import TraceRequest
 from .tokens import python_tokens
+from .window import WindowError, apply_window, function_range
 
 SCHEMA = "visset.trace/0.1"
 
@@ -38,16 +39,26 @@ class TraceError(RuntimeError):
 
 def _meta(req: TraceRequest) -> dict[str, Any]:
     entry = f"{req.function}({req.args})" if req.function else None
+    if entry is None and req.given:
+        entry = f"given {req.given}"
     return {
         "language": "python",
         "runtime": f"{platform.python_implementation()} {platform.python_version()}",
         "generator": f"visset {__version__}",
         "origin": "traced",
-        "title": req.title or entry or Path(req.path).name,
+        "title": req.title or entry or _file_title(req),
         "entry": entry,
         "truncated": None,
         "error": None,
     }
+
+
+def _file_title(req: TraceRequest) -> str:
+    name = Path(req.path).name
+    if req.lines:
+        first, last = req.lines
+        return f"{name}, line {first}" if first == last else f"{name}, lines {first}–{last}"
+    return name
 
 
 def _result(
@@ -106,14 +117,99 @@ def _syntax_error_trace(req: TraceRequest, exc: SyntaxError) -> dict[str, Any]:
     return _result(req, None, error, [step])
 
 
-def _parse_args(args: str) -> tuple[Any, ...]:
+def _parse_args(args: str, ns: dict[str, Any]) -> tuple[Any, ...]:
+    """Evaluate `--args` as Python expressions in the program's namespace.
+
+    The program itself is about to run, so evaluating its own expressions adds no risk, and it
+    lets you pass objects the file defines: `--args "Node(1, Node(2)), 5"`.
+    """
     if not args.strip():
         return ()
     try:
-        value = ast.literal_eval(f"({args},)")
-    except (ValueError, SyntaxError) as e:
-        raise TraceError(f'--args must be Python literals, e.g. "[1, 2, 3], 2" ({e})') from e
+        value = eval(f"({args},)", ns)
+    except Exception as e:
+        raise TraceError(f"could not evaluate --args {args!r}: {type(e).__name__}: {e}") from e
     return tuple(value)
+
+
+def _parse_given(given: str, ns: dict[str, Any]) -> dict[str, Any]:
+    """'arr=[1, 3], target=3' -> {'arr': [1, 3], 'target': 3}, evaluated like `--args`."""
+    if not given.strip():
+        return {}
+    try:
+        call = ast.parse(f"_({given})", mode="eval").body
+        if not isinstance(call, ast.Call) or call.args:
+            raise SyntaxError("expected name=value pairs")
+    except SyntaxError as e:
+        raise TraceError(
+            f'--given must be name=value pairs, e.g. "arr=[1, 3, 5], target=3" ({e})'
+        ) from e
+    try:
+        return {
+            kw.arg: eval(compile(ast.Expression(kw.value), "<given>", "eval"), ns)
+            for kw in call.keywords
+            if kw.arg
+        }
+    except Exception as e:
+        raise TraceError(f"could not evaluate --given {given!r}: {type(e).__name__}: {e}") from e
+
+
+def _window(req: TraceRequest) -> tuple[int, int] | None:
+    if req.lines:
+        return req.lines
+    if req.function:
+        try:
+            return function_range(req.source, req.function)
+        except WindowError:
+            return None  # e.g. a function created at runtime: show the whole file
+    return None
+
+
+def finish_trace(req: TraceRequest, tracer: Tracer, error: dict[str, Any] | None) -> dict[str, Any]:
+    trace = _result(req, tracer, error)
+    window = _window(req)
+    if window is not None:
+        try:
+            trace = apply_window(trace, *window)
+        except WindowError as e:
+            raise TraceError(str(e)) from e
+    return trace
+
+
+def run_body(
+    tracer: Tracer, capture: Capture, stdin: str, filename: str, body: Any
+) -> tuple[dict[str, Any] | None, int]:
+    """Run `body()` with output captured; turn the program's exceptions into trace data."""
+    saved = sys.stdout, sys.stdin
+    sys.stdout, sys.stdin = capture, _EchoStdin(stdin, capture)
+    error: dict[str, Any] | None = None
+    status = EXIT_OK
+    try:
+        body()
+    except StopTracing:
+        status = EXIT_LIMIT
+    except TraceError:
+        raise
+    except SystemExit as exc:
+        if exc.code not in (None, 0):
+            error = {"type": "SystemExit", "message": str(exc.code), "line": None}
+            status = EXIT_USER_ERROR
+    except BaseException as exc:  # the user's program raised: still a valid trace
+        tb = exc.__traceback__
+        line = None
+        while tb is not None:
+            if tb.tb_frame.f_code.co_filename == filename:
+                line = tb.tb_lineno
+            tb = tb.tb_next
+        error = {"type": type(exc).__name__, "message": str(exc), "line": line}
+        status = EXIT_USER_ERROR
+    finally:
+        tracer.uninstall()
+        sys.stdout, sys.stdin = saved
+    tracer.finish()
+    if tracer.truncated is not None and status == EXIT_OK:
+        status = EXIT_LIMIT
+    return error, status
 
 
 # ---------------------------------------------------------------------------- execution
@@ -132,49 +228,34 @@ def execute(req: TraceRequest, on_limit: Any = None) -> tuple[dict[str, Any], in
     global _ACTIVE
     _ACTIVE = (req, tracer)
     if on_limit is not None:
-        tracer.on_limit = lambda: on_limit(_result(req, tracer, None))
+        tracer.on_limit = lambda: on_limit(finish_trace(req, tracer, None))
     ns: dict[str, Any] = {"__name__": "__main__", "__file__": req.path, "__builtins__": builtins}
-    saved = sys.stdout, sys.stdin
-    sys.stdout, sys.stdin = capture, _EchoStdin(req.stdin, capture)
-    error: dict[str, Any] | None = None
-    status = EXIT_OK
-    try:
+    ns.update(_parse_given(req.given, ns))
+
+    def body() -> None:
         if req.function:
             exec(code, ns)  # define things, untraced
             capture.take()
-            fn = ns.get(req.function)
-            if not callable(fn):
-                raise TraceError(f"{req.function!r} is not a function defined in {req.path}")
-            args = _parse_args(req.args)
+            fn = _lookup(ns, req.function)
+            args = _parse_args(req.args, ns)
             tracer.install(code)
             fn(*args)
         else:
             tracer.install(code)
             exec(code, ns)
-    except StopTracing:
-        status = EXIT_LIMIT
-    except TraceError:
-        raise
-    except SystemExit as exc:
-        if exc.code not in (None, 0):
-            error = {"type": "SystemExit", "message": str(exc.code), "line": None}
-            status = EXIT_USER_ERROR
-    except BaseException as exc:  # the user's program raised: still a valid trace
-        tb = exc.__traceback__
-        line = None
-        while tb is not None:
-            if tb.tb_frame.f_code.co_filename == req.path:
-                line = tb.tb_lineno
-            tb = tb.tb_next
-        error = {"type": type(exc).__name__, "message": str(exc), "line": line}
-        status = EXIT_USER_ERROR
-    finally:
-        tracer.uninstall()
-        sys.stdout, sys.stdin = saved
-    tracer.finish()
-    if tracer.truncated is not None and status == EXIT_OK:
-        status = EXIT_LIMIT
-    return _result(req, tracer, error), status
+
+    error, status = run_body(tracer, capture, req.stdin, req.path, body)
+    return finish_trace(req, tracer, error), status
+
+
+def _lookup(ns: dict[str, Any], qualname: str) -> Any:
+    head, *rest = qualname.split(".")
+    obj = ns.get(head)
+    for part in rest:
+        obj = getattr(obj, part, None)
+    if not callable(obj):
+        raise TraceError(f"{qualname!r} is not a function defined in this file")
+    return obj
 
 
 _ACTIVE: tuple[TraceRequest, Tracer] | None = None
@@ -247,7 +328,7 @@ def _arm_alarm(req: TraceRequest, write: Any) -> None:
         if _ACTIVE is not None:
             areq, tracer = _ACTIVE
             tracer.stop_from_signal(frame)
-            write(_result(areq, tracer, None))
+            write(finish_trace(areq, tracer, None))
         os._exit(EXIT_LIMIT)
 
     signal.signal(signal.SIGALRM, on_alarm)
