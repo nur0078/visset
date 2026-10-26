@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "visset"
+dynamic = ["version"]
+description = "Step-by-step visual explanations of code: hand-drawn annotations, synced diagrams."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]  # copy of ../LICENSE (sdists cannot include files outside this folder)
+authors = [{ name = "visset contributors" }]
+keywords = ["visualization", "education", "tracing", "debugger", "teaching"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Education",
+    "Topic :: Software Development :: Debuggers",
+]
+# No runtime dependencies: tracing and HTML export use only the standard library.
+dependencies = []
+
+[project.optional-dependencies]
+fast = ["orjson>=3.10"]
+
+[project.urls]
+Homepage = "https://github.com/nur0078/visset"
+Issues = "https://github.com/nur0078/visset/issues"
+
+[project.scripts]
+visset = "visset.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.3", "jsonschema>=4.23", "ruff>=0.8", "mypy>=1.13"]
+
+[tool.hatch.version]
+path = "src/visset/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/visset"]
+# Built from packages/player by `pnpm build`; not committed, but shipped in the wheel.
+artifacts = ["src/visset/_assets/player.js"]
+
+[tool.hatch.build.targets.sdist]
+artifacts = ["src/visset/_assets/player.js"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+extend-exclude = ["README.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "C4"]
+ignore = ["RUF001", "RUF002", "RUF003", "SIM105"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["orjson"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

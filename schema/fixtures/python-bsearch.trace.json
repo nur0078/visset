@@ -1,0 +1,1724 @@
+{
+ "schema": "visset.trace/0.1",
+ "meta": {
+  "language": "python",
+  "runtime": "CPython",
+  "generator": "visset",
+  "origin": "traced",
+  "title": "bsearch.py",
+  "entry": null,
+  "truncated": null,
+  "error": null
+ },
+ "sources": [
+  {
+   "id": "main",
+   "path": "bsearch.py",
+   "text": "def binary_search(arr, target):\n    lo, hi = 0, len(arr) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1\n\n\nnums = [1, 3, 5, 7, 9, 11]\nindex = binary_search(nums, 7)\nprint(\"found at\", index)\n",
+   "tokens": [
+    [
+     1,
+     0,
+     3,
+     "keyword"
+    ],
+    [
+     1,
+     4,
+     17,
+     "definition"
+    ],
+    [
+     2,
+     13,
+     14,
+     "number"
+    ],
+    [
+     2,
+     16,
+     19,
+     "builtin"
+    ],
+    [
+     2,
+     27,
+     28,
+     "number"
+    ],
+    [
+     3,
+     4,
+     9,
+     "keyword"
+    ],
+    [
+     4,
+     27,
+     28,
+     "number"
+    ],
+    [
+     5,
+     8,
+     10,
+     "keyword"
+    ],
+    [
+     6,
+     12,
+     18,
+     "keyword"
+    ],
+    [
+     7,
+     8,
+     12,
+     "keyword"
+    ],
+    [
+     8,
+     23,
+     24,
+     "number"
+    ],
+    [
+     9,
+     8,
+     12,
+     "keyword"
+    ],
+    [
+     10,
+     23,
+     24,
+     "number"
+    ],
+    [
+     11,
+     4,
+     10,
+     "keyword"
+    ],
+    [
+     11,
+     12,
+     13,
+     "number"
+    ],
+    [
+     14,
+     8,
+     9,
+     "number"
+    ],
+    [
+     14,
+     11,
+     12,
+     "number"
+    ],
+    [
+     14,
+     14,
+     15,
+     "number"
+    ],
+    [
+     14,
+     17,
+     18,
+     "number"
+    ],
+    [
+     14,
+     20,
+     21,
+     "number"
+    ],
+    [
+     14,
+     23,
+     25,
+     "number"
+    ],
+    [
+     15,
+     8,
+     21,
+     "call"
+    ],
+    [
+     15,
+     28,
+     29,
+     "number"
+    ],
+    [
+     16,
+     0,
+     5,
+     "builtin"
+    ],
+    [
+     16,
+     6,
+     16,
+     "string"
+    ]
+   ]
+  }
+ ],
+ "objects": {
+  "o1@0": {
+   "type": "function",
+   "shape": "function",
+   "repr": "binary_search(arr, target)"
+  },
+  "o2@0": {
+   "type": "list",
+   "shape": "sequence",
+   "items": [
+    {
+     "p": "1",
+     "t": "int"
+    },
+    {
+     "p": "3",
+     "t": "int"
+    },
+    {
+     "p": "5",
+     "t": "int"
+    },
+    {
+     "p": "7",
+     "t": "int"
+    },
+    {
+     "p": "9",
+     "t": "int"
+    },
+    {
+     "p": "11",
+     "t": "int"
+    }
+   ]
+  }
+ },
+ "steps": [
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      1,
+      0
+     ],
+     "end": [
+      1,
+      30
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "Define the function `binary_search`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 14,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      14,
+      0
+     ],
+     "end": [
+      14,
+      26
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`nums` becomes `[1, 3, 5, 7, 9, 11]`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "call",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      15,
+      0
+     ],
+     "end": [
+      15,
+      30
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Call `binary_search(arr=[1, 3, 5, 7, 9, 11], target=7)`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 2,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      2,
+      4
+     ],
+     "end": [
+      2,
+      28
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`lo` becomes `0`, `hi` becomes `5`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 3,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "0",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "5",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      10
+     ],
+     "end": [
+      3,
+      18
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`lo <= hi` is true, so the loop body runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 4,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "0",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "5",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      8
+     ],
+     "end": [
+      4,
+      28
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`mid` becomes `2`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 5,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "0",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "5",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      5,
+      11
+     ],
+     "end": [
+      5,
+      29
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`arr[mid] == target` is false, so the next condition is checked.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 7,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "0",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "5",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      7,
+      13
+     ],
+     "end": [
+      7,
+      30
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`arr[mid] < target` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 8,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "0",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "5",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      8,
+      12
+     ],
+     "end": [
+      8,
+      24
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`lo` becomes `3`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 3,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "5",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      10
+     ],
+     "end": [
+      3,
+      18
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`lo <= hi` is true, so the loop body runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 4,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "5",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "2",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      8
+     ],
+     "end": [
+      4,
+      28
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`mid` becomes `4`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 5,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "5",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      5,
+      11
+     ],
+     "end": [
+      5,
+      29
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`arr[mid] == target` is false, so the next condition is checked.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 7,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "5",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      7,
+      13
+     ],
+     "end": [
+      7,
+      30
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`arr[mid] < target` is false, so the next condition is checked.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 10,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "5",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      10,
+      12
+     ],
+     "end": [
+      10,
+      24
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`hi` becomes `3`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 3,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      3,
+      10
+     ],
+     "end": [
+      3,
+      18
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`lo <= hi` is true, so the loop body runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 4,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "4",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      4,
+      8
+     ],
+     "end": [
+      4,
+      28
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`mid` becomes `3`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 5,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      5,
+      11
+     ],
+     "end": [
+      5,
+      29
+     ],
+     "mark": "underline"
+    }
+   ],
+   "caption": "`arr[mid] == target` is true, so the indented block runs.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 6,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "return",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      6,
+      12
+     ],
+     "end": [
+      6,
+      22
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`binary_search` returns `3`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 15,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ]
+     ]
+    },
+    {
+     "id": "f2",
+     "name": "binary_search",
+     "line": 6,
+     "locals": [
+      [
+       "arr",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "target",
+       {
+        "p": "7",
+        "t": "int"
+       }
+      ],
+      [
+       "lo",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "hi",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ],
+      [
+       "mid",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ],
+     "returnValue": {
+      "p": "3",
+      "t": "int"
+     }
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      15,
+      0
+     ],
+     "end": [
+      15,
+      30
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "`index` becomes `3`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 16,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "index",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ]
+  },
+  {
+   "kind": "statement",
+   "focus": [
+    {
+     "source": "main",
+     "start": [
+      16,
+      0
+     ],
+     "end": [
+      16,
+      24
+     ],
+     "mark": "circle"
+    }
+   ],
+   "caption": "Print `found at 3`.",
+   "captionOrigin": "template",
+   "stack": [
+    {
+     "id": "f1",
+     "name": "Global",
+     "line": 16,
+     "locals": [
+      [
+       "binary_search",
+       {
+        "ref": "o1"
+       }
+      ],
+      [
+       "nums",
+       {
+        "ref": "o2"
+       }
+      ],
+      [
+       "index",
+       {
+        "p": "3",
+        "t": "int"
+       }
+      ]
+     ]
+    }
+   ],
+   "heap": [
+    "o1@0",
+    "o2@0"
+   ],
+   "stdout": "found at 3\n"
+  }
+ ]
+}
