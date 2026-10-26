@@ -44,6 +44,7 @@ class StepNode:
     else_lines: tuple[int, int] | None = None
     names: tuple[str, ...] = ()  # assignment targets / loop variables / defined name
     target: tuple[str, ...] | None = None  # ("attr", obj, name) / ("item", obj, key-expr)
+    stmt_end: Pos | None = None  # compound statements: end of the whole statement (bytes)
     ast_node: ast.AST | None = field(default=None, repr=False)
 
 
@@ -159,6 +160,17 @@ class SourceIndex:
                 i += 1
         return (line, len(self._line_bytes[line - 1]))
 
+    def _header(self, node: ast.stmt) -> tuple[Pos, Pos]:
+        """Match range of a compound statement: its whole header, keyword to colon.
+
+        The *focus* stays narrow (`lo <= hi`, `x in items`), but loop bookkeeping instructions
+        point at different parts of the header across patch releases: on CPython 3.12.3
+        `FOR_ITER` spans `for x in items`, on 3.12.13 just `items`. Matching the whole header
+        keeps per-iteration steps on every version.
+        """
+        start = (node.lineno, node.col_offset)
+        return start, self._header_end(*start)
+
     def _collect(self, tree: ast.AST) -> None:
         for node in ast.walk(tree):
             if isinstance(node, (ast.If, ast.While)):
@@ -167,10 +179,11 @@ class SourceIndex:
                     node,
                     type(node).__name__,
                     span,
-                    span,
+                    self._header(node),
                     "underline",
                     body_lines=self._lines(node.body),
                     else_lines=self._lines(node.orelse),
+                    stmt_end=self._span(node)[1],
                 )
             elif isinstance(node, (ast.For, ast.AsyncFor)):
                 span = (self._span(node.target)[0], self._span(node.iter)[1])
@@ -178,17 +191,25 @@ class SourceIndex:
                     node,
                     "For",
                     span,
-                    span,
+                    self._header(node),
                     "underline",
                     body_lines=self._lines(node.body),
                     else_lines=self._lines(node.orelse),
                     names=_target_names(node.target),
+                    stmt_end=self._span(node)[1],
                 )
             elif isinstance(node, (ast.With, ast.AsyncWith)):
                 first, last = node.items[0], node.items[-1]
                 end_node = last.optional_vars or last.context_expr
                 span = (self._span(first.context_expr)[0], self._span(end_node)[1])
-                self._add(node, "With", span, span, "underline")
+                self._add(
+                    node,
+                    "With",
+                    span,
+                    self._header(node),
+                    "underline",
+                    stmt_end=self._span(node)[1],
+                )
             elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 start = (node.lineno, node.col_offset)
                 header = (start, self._header_end(*start))
@@ -232,10 +253,14 @@ class SourceIndex:
 
     # ----------------------------------------------------------------- instruction mapping
 
-    def _match(self, line: int, end_line: int, col: int, end_col: int) -> StepNode | None:
+    def _match(
+        self, line: int, end_line: int, col: int, end_col: int, own: StepNode | None = None
+    ) -> StepNode | None:
         best: StepNode | None = None
         best_size: tuple[int, int] | None = None
         for node in self._by_line.get(line, ()):
+            if node is own:
+                continue
             if (line, col) < node.match_start or (end_line, end_col) > node.match_end:
                 continue
             size = (
@@ -244,6 +269,16 @@ class SourceIndex:
             )
             if best_size is None or size < best_size:
                 best, best_size = node, size
+        if best is None:
+            # Loop bookkeeping (FOR_ITER, END_FOR...) on some patch releases spans the *whole*
+            # compound statement, body included. It still belongs to the header's step.
+            for node in self._by_line.get(line, ()):
+                if (
+                    node.stmt_end is not None
+                    and (line, col) == node.match_start
+                    and (end_line, end_col) <= node.stmt_end
+                ):
+                    return node
         return best
 
     def table(self, code: CodeType) -> CodeTable:
@@ -251,6 +286,19 @@ class SourceIndex:
         cached = self._tables.get(id(code))
         if cached is not None:
             return cached
+        # A function's body never belongs to its own `def` step (only the code that runs the
+        # `def` does), even when an instruction's position spans the whole function, as some
+        # instructions do on CPython 3.12.3.
+        own = next(
+            (
+                n
+                for n in self.nodes
+                if n.kind in ("FunctionDef", "ClassDef")
+                and n.names == (code.co_name,)
+                and n.match_start[0] <= code.co_firstlineno <= n.focus_start[0]
+            ),
+            None,
+        )
         node_at: dict[int, StepNode] = {}
         boundaries: set[int] = set()
         starts: set[int] = set()
@@ -264,7 +312,11 @@ class SourceIndex:
             if pos.lineno == pos.end_lineno and pos.col_offset == pos.end_col_offset:
                 continue  # zero-width: synthetic
             node = self._match(
-                pos.lineno, pos.end_lineno or pos.lineno, pos.col_offset, pos.end_col_offset or 0
+                pos.lineno,
+                pos.end_lineno or pos.lineno,
+                pos.col_offset,
+                pos.end_col_offset or 0,
+                own,
             )
             if node is None:
                 continue
