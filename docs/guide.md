@@ -5,7 +5,7 @@
 ```python
 import visset
 
-visset.show(binary_search, [1, 3, 5, 7], 5)        # trace one call and open it in the browser
+visset.show(binary_search, [1, 3, 5, 7], 5)        # trace one call and show it (inline in a notebook)
 trace = visset.trace(binary_search, [1, 3, 5, 7], 5)   # the trace as a dict (JSON-ready)
 visset.to_html(trace, "bsearch.html")             # one self-contained HTML file
 ```
@@ -15,8 +15,8 @@ visset.to_html(trace, "bsearch.html")             # one self-contained HTML file
 | `trace(fn, *args, **kwargs)` | Calls `fn` and records only that call. The code pane shows only `fn`. |
 | `trace_call(fn, args, kwargs, *, lines=None, limits=None, title=None)` | Same, with options. `lines=(4, 9)` shows only those lines of the file. |
 | `trace(source, **options)` / `trace_source(...)` | Runs source text. Options: `given`, `function`, `args`, `lines`, `stdin`, `limits`, `sandbox`. |
-| `show(fn_or_source_or_trace, ...)` | Like `trace`, then opens the result in the browser. Returns the HTML path. |
-| `to_html(trace, path=None)` | Renders a trace to standalone HTML. |
+| `show(fn_or_source_or_trace, ...)` | Like `trace`, then shows the result: under the cell in a notebook (returns `None`), otherwise in the browser (returns the HTML path). |
+| `to_html(trace, path=None)` | Renders a trace to standalone HTML. In a notebook, the result displays as the player, not as text. |
 
 A live call (`trace(fn, ...)`) runs in your Python process, because real objects can't cross a
 process boundary, so its arguments can be anything. Use it on code you trust to finish; the step
