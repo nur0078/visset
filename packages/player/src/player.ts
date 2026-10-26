@@ -1,4 +1,6 @@
 import { CodeView } from './code-view';
+import { ObjectGraph } from './graph';
+import { GraphView } from './graph-view';
 import { parseCaption, TraceModel } from './model';
 import { StateView } from './state-view';
 import { css } from './styles';
@@ -55,12 +57,15 @@ export class VissetPlayer extends HTMLElement {
   private speed = 1;
   private codeView: CodeView | null = null;
   private stateView = new StateView();
+  private graphView: GraphView | null = null;
   private root: ShadowRoot;
   private els!: {
     title: HTMLElement;
     meta: HTMLElement;
     file: HTMLElement;
     codePane: HTMLElement;
+    statePane: HTMLElement;
+    panes: HTMLElement;
     caption: HTMLElement;
     notice: HTMLElement;
     prev: HTMLButtonElement;
@@ -82,6 +87,8 @@ export class VissetPlayer extends HTMLElement {
       meta: q('.meta'),
       file: q('.file'),
       codePane: q('.code-pane'),
+      statePane: q('.state-pane'),
+      panes: q('.panes'),
       caption: q('.caption'),
       notice: q('.notice'),
       prev: q('.prev'),
@@ -237,6 +244,11 @@ export class VissetPlayer extends HTMLElement {
     this.codeView?.el.remove();
     this.codeView = new CodeView(source);
     this.els.codePane.append(this.codeView.el);
+    this.graphView?.el.remove();
+    const graph = ObjectGraph.build(m);
+    this.graphView = graph ? new GraphView(graph) : null;
+    if (this.graphView) this.els.statePane.prepend(this.graphView.el);
+    this.els.panes.classList.toggle('has-graph', Boolean(graph));
     this.els.slider.max = String(Math.max(0, m.length - 1));
     this.idx = Math.max(0, Math.min(m.length - 1, Number(this.getAttribute('step') ?? 0) || 0));
     const speed = Number(this.getAttribute('speed'));
@@ -258,6 +270,7 @@ export class VissetPlayer extends HTMLElement {
       .map((f) => f.line ?? 0)
       .filter((l) => l > 0);
     this.codeView?.setFocus(step.focus, i + 1, animate, callers);
+    this.graphView?.render(i, animate);
     this.stateView.render(m, i, animate);
 
     const cap = this.els.caption;

@@ -152,4 +152,46 @@ describe('player in a browser', () => {
     expect(caption).toBe('&lt;b&gt;bold&lt;/b&gt; <code>&lt;i&gt;</code>');
     await page.close();
   });
+  it('draws linked objects as a graph, and pulses the field that changed', async () => {
+    const text = readFileSync(resolve(fixtures, 'python-autograd.trace.json'), 'utf8');
+    const steps = (JSON.parse(text) as { steps: { caption: string }[] }).steps;
+    const target = steps.findIndex((s) => s.caption.startsWith('`other.grad` becomes'));
+    const { page, errors } = await open(text);
+    await page.evaluate((i) => document.querySelector('visset-player')!.goTo(i), target);
+    const view = await page.evaluate(() => {
+      const root = document.querySelector('visset-player')!.shadowRoot!;
+      const svg = root.querySelector<SVGSVGElement>('.graph-svg')!;
+      const box = svg.getBoundingClientRect();
+      const nodes = [...root.querySelectorAll<SVGGElement>('.graph .node')];
+      return {
+        nodes: nodes.length,
+        edges: root.querySelectorAll('.graph .edge').length,
+        changed: [...root.querySelectorAll('.node-row.changed')].map(
+          (r) =>
+            `${r.querySelector('.row-name')!.textContent}=${r.querySelector('.row-value')!.firstChild!.textContent}`,
+        ),
+        inside: nodes.every((n) => {
+          const r = n.getBoundingClientRect();
+          return r.left >= box.left - 1 && r.right <= box.right + 1;
+        }),
+      };
+    });
+    expect(view.nodes).toBe(6);
+    expect(view.edges).toBe(5);
+    expect(view.changed).toEqual(['grad=1.0']);
+    expect(view.inside).toBe(true);
+    expect(errors).toEqual([]);
+    await page.close();
+  });
+
+  it('shows no graph pane when nothing links to anything', async () => {
+    const { page } = await open(
+      readFileSync(resolve(fixtures, 'python-bsearch.trace.json'), 'utf8'),
+    );
+    const graphs = await page.evaluate(
+      () => document.querySelector('visset-player')!.shadowRoot!.querySelectorAll('.graph').length,
+    );
+    expect(graphs).toBe(0);
+    await page.close();
+  });
 });
