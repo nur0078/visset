@@ -254,12 +254,17 @@ class SourceIndex:
     # ----------------------------------------------------------------- instruction mapping
 
     def _match(
-        self, line: int, end_line: int, col: int, end_col: int, own: StepNode | None = None
+        self,
+        line: int,
+        end_line: int,
+        col: int,
+        end_col: int,
+        skip: frozenset[StepNode] = frozenset(),
     ) -> StepNode | None:
         best: StepNode | None = None
         best_size: tuple[int, int] | None = None
         for node in self._by_line.get(line, ()):
-            if node is own:
+            if node in skip:
                 continue
             if (line, col) < node.match_start or (end_line, end_col) > node.match_end:
                 continue
@@ -299,6 +304,19 @@ class SourceIndex:
             ),
             None,
         )
+        # Nor to the `def` of a function it is nested in: on CPython 3.12, loop bookkeeping
+        # spans the whole loop, and the enclosing `def` was the smallest node around it.
+        skip = frozenset(
+            ()
+            if own is None
+            else (
+                n
+                for n in self.nodes
+                if n.kind in ("FunctionDef", "AsyncFunctionDef", "ClassDef")
+                and n.match_start <= own.match_start
+                and own.match_end <= n.match_end
+            )
+        )
         node_at: dict[int, StepNode] = {}
         boundaries: set[int] = set()
         starts: set[int] = set()
@@ -316,7 +334,7 @@ class SourceIndex:
                 pos.end_lineno or pos.lineno,
                 pos.col_offset,
                 pos.end_col_offset or 0,
-                own,
+                skip,
             )
             if node is None:
                 continue

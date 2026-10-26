@@ -171,3 +171,21 @@ def test_sets_of_objects_list_them_in_the_order_first_seen() -> None:
     ids = [dict(trace["steps"][-1]["stack"][0]["locals"])[n]["ref"] for n in "abcs"]
     s = next(v for k, v in objects.items() if k.startswith(ids[3] + "@"))
     assert [v["ref"] for v in s["items"]] == ids[:3]
+
+
+def test_a_loop_in_a_nested_function_never_steps_to_the_enclosing_def() -> None:
+    # On CPython 3.12 the loop's bookkeeping spans the whole loop; it once matched `def outer`.
+    src = (
+        "def outer(v):\n"
+        "    seen = set()\n\n"
+        "    def walk(v):\n"
+        "        if v not in seen:\n"
+        "            seen.add(v)\n"
+        "            for c in v:\n"
+        "                walk(c)\n\n"
+        "    walk(v)\n\n\n"
+        "outer(((), ()))\n"
+    )
+    caps = captions(run(src))
+    assert caps.count("Define the function `outer`.") == 1
+    assert caps.index("Next item: `c` = `()`.") < caps.index("No items left, so the loop ends.")

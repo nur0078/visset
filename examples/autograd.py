@@ -4,11 +4,15 @@
 # and relu (not tanh, whose last digit varies by platform) keeps the numbers exact.
 
 
+def _nothing():
+    pass  # an input has no inputs of its own to pass a gradient to
+
+
 class Value:
     def __init__(self, data, _children=(), _op="", label=""):
         self.data = data
         self.grad = 0.0
-        self._backward = lambda: None
+        self._backward = _nothing  # micrograd uses `lambda: None`
         self._prev = tuple(_children)
         self._op = _op
         self.label = label
