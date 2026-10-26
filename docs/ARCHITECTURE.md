@@ -1,6 +1,6 @@
 # visset — architecture proposal (v0.1, for review)
 
-> Status: **proposal**. Nothing here is built yet. Push back on anything.
+> Status: **accepted**, with refinements from probing CPython (§4). Updated as milestones land.
 
 ## 0. Decisions from the Q&A
 
@@ -10,6 +10,9 @@
 | Install | **Python-first**: `pip install visset` / `uvx visset`. `npx visset` added in M4 | Python core has **zero runtime deps** for trace + HTML export |
 | Python | 3.12+ (`sys.monitoring`) | One code path. Older versions get a clear error message |
 | Authoring | YAML + text selectors | `circle: "arr[mid]"` survives small edits to the code |
+| Name | `visset` (package, CLI, element `<visset-player>`) | `codeviz` is too generic |
+| Workflow | One branch + PR per milestone, CI on every PR | `main` always works |
+| Scope | No features beyond the brief for now | Speed first: "snappy like matplotlib" |
 
 **"Is there a faster language for the CLI?"** Rust or Go would give a single fast binary, but they wouldn't make
 visset faster. The slow work is running and recording the user's program, and that has to happen *inside the
@@ -115,7 +118,7 @@ is just "inline player.js + the trace JSON into a template".
       "locals": [["arr", {"ref": "o1"}], ["lo", {"p": "0", "t": "int"}], ["mid", {"p": "2", "t": "int"}]]
     }],
     "heap": ["o1@0"],                        // object versions alive at this step
-    "stdout": "",                            // cumulative console output at this step
+    "stdout": "Found\n",                     // output printed *during* this step (delta; the player sums them)
     "changes": ["f1.mid"],                   // optional; the renderer diffs consecutive steps if omitted
     "links": [{"focus": 0, "to": "o1[2]"}],  // optional connector arrows: code → diagram element
     "hints": {"o1": "array", "lo": "pointer:o1"}  // optional renderer hints
@@ -140,8 +143,8 @@ Hand-authored steps use **the same schema**, so the renderer never needs to know
 
 ## 4. Tracer interface
 
-A tracer is **any executable** that reads a `TraceRequest` (JSON) on stdin and writes a `Trace` (JSON) on stdout.
-Diagnostics go to stderr. Exit codes: 0 = ok, 2 = user code raised (the trace is still valid and ends at the
+A tracer is **any executable** that reads a `TraceRequest` (JSON) on stdin and writes a `Trace` (JSON) to the `output` path in the request. The user program owns stdout and stderr, so the trace never shares a stream with the program's own `print` output.
+Tracer diagnostics go to a log file. Exit codes: 0 = ok, 2 = user code raised (the trace is still valid and ends at the
 exception), 3 = a limit was hit (the trace is still valid and truncated), 1 = tracer failure.
 
 ```jsonc
@@ -162,15 +165,23 @@ I probed CPython 3.13, and it shows why this needs care:
 - The instruction's position is its *first sub-expression* (`arr`), not the statement.
 
 So the tracer:
-1. Parses the source with `ast` (stdlib; no tree-sitter needed for Python) and builds a table mapping
-   bytecode offset → the innermost "steppable" node, using `code.co_positions()` (3.11+ column data).
-2. Turns on `INSTRUCTION` events **only for code objects compiled from the user's file**. Library code
-   returns `DISABLE`, so it costs nothing after the first hit.
-3. Emits a step each time the steppable node changes. For `while`/`if`/`for`, the focus is the *condition*
-   (`lo <= hi`), not the whole block.
-4. Snapshots frames and heap (reachable from locals, BFS, with `maxItems` and `maxDepth` caps) and interns
+1. Parses the source with `ast` (stdlib; no tree-sitter needed for Python) and builds, per code object,
+   a table mapping bytecode offset → the innermost "steppable" node, using `code.co_positions()`.
+2. Enables `INSTRUCTION` events **locally**, only on code objects compiled from the user's file (found by
+   walking `co_consts` recursively). Library code isn't monitored at all.
+3. Marks a small set of **boundary offsets** per code object: the first instruction of each node's run, plus
+   jump targets (loop heads). Every other offset returns `DISABLE` the first time it fires, so it never fires
+   again. In a probe, a loop whose instructions were all disabled ran at untraced speed (0.0283 s vs 0.0279 s).
+   You pay only for the instructions that start a step.
+4. Emits a step at each boundary that changes the node, or loops back to it. For `while`/`if`/`for`, the focus
+   is the *header* (`lo <= hi`, `x in arr`), not the whole block.
+5. Snapshots frames and heap (reachable from locals, BFS, with `maxItems` and `maxDepth` caps) and interns
    object versions.
-5. Writes template captions: "`mid` becomes 2", "Call `fib(3)`", "`fib(2)` returns 1", "`lo <= hi` is True → enter loop".
+6. Writes template captions: "`mid` becomes 2", "Call `fib(n=3)`", "`fib` returns 1", "`lo <= hi` is true → enter the loop".
+
+Limits (steps, time) **end the child process with the trace written**, rather than raising an exception: the
+probe showed that exceptions raised in a monitoring callback reach the user's code, where a user's
+`except Exception:` would swallow them.
 
 *Why `sys.monitoring` over `sys.settrace`:* per-code-object event control (library code is truly free), lower
 overhead, and real instruction events. *Why not DAP for Python:* DAP stops at lines and returns variables as
@@ -316,6 +327,6 @@ On Windows there is no `setrlimit`, so only the timeout and step limit apply.
 | M7 | `visset serve` playground (paste, run, share) | local web app |
 | M8 | `visset explain` with Claude / OpenAI / Ollama providers → overlay YAML | AI-captioned walkthrough |
 
-Each milestone gets its own commit(s) with tests: tracer unit tests, schema validation of every fixture and
+Each milestone is a branch and a pull request with tests: tracer unit tests, schema validation of every fixture and
 example, and renderer tests (TS with Vitest, plus Playwright screenshot smoke tests from M2 on).
 Since this runs in a cloud container, I'll also publish each milestone's demo HTML as a private link you can click through.
