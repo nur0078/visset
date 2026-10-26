@@ -278,7 +278,8 @@ overlay YAML", so the AI never touches the renderer, and you can review or edit 
 
 ## 8. Safety
 
-Every trace runs in a **child process**: `python -I` (isolated mode), a temp working directory, a scrubbed
+Every trace runs in a **child process**: `python -I` (isolated mode), the script's own directory as working
+directory (so `open("data.txt")` behaves like `python file.py`), `PYTHONHASHSEED=0` (reproducible traces), a scrubbed
 environment, stdin closed unless given, `resource.setrlimit` for CPU seconds and address space, a wall-clock
 timeout, and the step limit inside the tracer.
 **Honest caveat:** this protects against *accidents* (infinite loops, memory blowups), not *malicious code*. The
