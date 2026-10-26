@@ -17,6 +17,8 @@ import visset
 visset.show(binary_search, [1, 3, 5, 7, 9, 11], 7)   # like plt.show(), for code
 ```
 
+In Jupyter, JupyterLab, VS Code or Colab, the walkthrough plays right under the cell.
+
 ## Why visset
 
 - **It points at the exact code.** Not the line: the expression. `arr[mid] == target`, `left += 1`, the condition of a `while`. Marks are hand-drawn, so they read like a teacher's pen.

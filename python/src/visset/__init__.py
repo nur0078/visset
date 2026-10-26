@@ -2,6 +2,7 @@
 
 import visset
 visset.show(binary_search, [1, 3, 5, 7], 5)        # a live call, like plt.show()
+                                                   # (in a notebook, it plays inline)
 visset.show("total = 0\\nfor x in xs:\\n    total += x", given={"xs": [4, 5]})
 """
 
@@ -97,22 +98,31 @@ def trace_source(
 
 
 def to_html(trace: Trace, path: str | None = None) -> str:
-    """Render a trace as one self-contained HTML file. Returns the HTML; writes it if `path`."""
-    from .export.html import render_html
+    """Render a trace as one self-contained HTML file. Returns the HTML; writes it if `path`.
 
-    html = render_html(trace)
+    In a notebook, the returned string displays as the player rather than as raw HTML.
+    """
+    from .export.html import NotebookHTML, render_html
+
+    html = NotebookHTML(render_html(trace), trace)
     if path is not None:
         with open(path, "w", encoding="utf-8") as f:
             f.write(html)
     return html
 
 
-def show(target: Trace | str | Callable[..., Any], /, *args: Any, **kwargs: Any) -> str:
-    """Open a walkthrough in the browser, like `plt.show()`. Returns the HTML file's path.
+def show(target: Trace | str | Callable[..., Any], /, *args: Any, **kwargs: Any) -> str | None:
+    """Show a walkthrough, like `plt.show()`.
+
+    In a notebook (Jupyter, JupyterLab, VS Code, Colab) the player appears under the cell and
+    this returns None. Elsewhere it opens in the browser and returns the HTML file's path.
 
     Accepts a trace, or the same arguments as `trace()`: `show(fn, *args)` / `show("code")`.
     """
-    from .export.html import open_in_browser
+    from .export.html import display_inline, in_notebook, open_in_browser
 
     data = target if isinstance(target, dict) else trace(target, *args, **kwargs)
+    if in_notebook():
+        display_inline(data)
+        return None
     return open_in_browser(data)

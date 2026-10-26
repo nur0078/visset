@@ -67,7 +67,7 @@ files = ["src"]
 warn_unreachable = true
 
 [[tool.mypy.overrides]]
-module = ["orjson"]
+module = ["orjson", "IPython", "IPython.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

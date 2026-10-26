@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Notebooks: `visset.show(...)` plays the walkthrough under the cell in Jupyter, JupyterLab,
+  VS Code and Colab instead of returning a temp file path, and `to_html(...)` displays as the
+  player instead of a wall of HTML text.
+
 ## 0.1.0
 
 First release.
